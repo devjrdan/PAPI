@@ -10,17 +10,22 @@
 <style>
   :root{
     --bg:#EEF1F4; --card:#FFFFFF; --ink:#18222E; --muted:#55616F; --line:#CBD3DC;
-    --accent:#1F4E79; --accent-soft:#E3EDF6; --ok:#1E7A4F; --err:#B3261E; --err-soft:#FBEAE8;
+    --accent:#1F4E79; --accent-soft:#E3EDF6; 
+    --ok:#1E7A4F; --err:#B3261E; --err-soft:#FBEAE8;
   }
   @media (prefers-color-scheme: dark){
     :root{
       --bg:#10161D; --card:#18212B; --ink:#E7ECF1; --muted:#9AA7B5; --line:#2B3846;
-      --accent:#7FB2E5; --accent-soft:#1E3550; --ok:#5CCB92; --err:#FF8A80; --err-soft:#3A1F1D;
+      --accent:#7FB2E5; --accent-soft:#1E3550; 
+      --ok:#5CCB92; --err:#FF8A80; --err-soft:#3A1F1D;
     }
   }
   *{box-sizing:border-box}
   html{scroll-padding-top:84px}
-  body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font:18px/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
   .wrap{max-width:760px;margin:0 auto;padding:0 16px 120px}
   header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
   .top-in{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
@@ -29,7 +34,7 @@
   .bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
   .count,.timer{font-size:.9rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
   h1{font-size:1.8rem;line-height:1.2;margin:28px 0 6px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin:16px 0}
   .card h2{font-size:1.15rem;margin:0 0 10px}
   .card p{margin:0 0 10px;max-width:68ch}
   .example{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0}
@@ -37,6 +42,7 @@
   label.field{display:block;font-weight:700;margin:14px 0 4px}
   label.field span.req,.req{color:var(--err)}
   input[type=text],input[type=email],input[type=date]{width:100%;padding:11px 12px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px}
+  input[readonly]{opacity:0.75;cursor:not-allowed}
   .choices{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:4px}
   .choices label{display:flex;align-items:center;gap:8px;cursor:pointer}
   input[type=radio]{width:20px;height:20px;accent-color:var(--accent);flex:none}
@@ -50,13 +56,12 @@
   .opt input{margin-top:3px}
   .hp{position:absolute;left:-9999px;height:0;width:0;overflow:hidden}
   .actions{margin:24px 0}
-  button.primary{font:inherit;font-weight:700;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:14px 26px;cursor:pointer;min-width:200px}
+  button.primary{font:inherit;font-weight:700;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:14px 26px;cursor:pointer;min-width:200px;transition:opacity .2s}
   @media (prefers-color-scheme: dark){button.primary{color:#0B1620}}
+  button.primary:hover{opacity:0.92}
   button.primary:disabled{opacity:.55;cursor:wait}
-  button.link{font:inherit;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0}
   .msg{padding:12px 14px;border-radius:8px;margin:12px 0}
   .msg.err{background:var(--err-soft);color:var(--err);border:1px solid var(--err)}
-  .msg.warn{background:var(--accent-soft);border:1px solid var(--accent)}
   .done{text-align:center;padding:48px 20px}
   .done h2{font-size:1.5rem;color:var(--ok)}
   [hidden]{display:none!important}
@@ -65,25 +70,45 @@
 </head>
 <body>
 
-<header class="top" id="topbar">
+<!-- Header Progress (Muncul setelah token terverifikasi) -->
+<header class="top" id="topbar" hidden>
   <div class="top-in">
     <strong>PAPI</strong>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="90" aria-valuenow="0" id="bar"><i></i></div>
     <span class="count" id="count">0 / 90</span>
-    <span class="timer" id="timer" title="Panduan waktu pengerjaan">16:00</span>
+    <span class="timer" id="timer" title="Panduan waktu pengerjaan">15:00</span>
   </div>
 </header>
 
 <main class="wrap">
-  <div id="formView">
-    <h1>Perception and Preference Inventory (PAPI)</h1>
 
-    <div id="configWarn" class="msg warn" hidden>
-      Alamat Google Apps Script belum diisi (<code>APPS_SCRIPT_URL</code> di bagian atas skrip). Jawaban tidak akan terkirim ke Google Sheets; Anda hanya bisa mengunduhnya sebagai file.
+  <!-- SCREEN 0: TOKEN GATE -->
+  <section id="tokenView" class="card" style="margin-top:40px">
+    <h1 style="margin-top:0;font-size:1.6rem">Selamat Datang di Asesmen PAPI</h1>
+    <p style="color:var(--muted)">Silakan masukkan kode token resmi yang telah diberikan oleh penguji untuk mengakses lembar Perception and Preference Inventory.</p>
+    
+    <div style="max-width:400px;margin:20px 0">
+      <label class="field" for="input-token">Kode Token Asesmen <span class="req">*</span></label>
+      <input type="text" id="input-token" placeholder="Contoh: PAPI-8X9Y2Z" style="text-transform:uppercase;font-weight:700;letter-spacing:1.5px" autocomplete="off">
     </div>
+
+    <button type="button" class="primary" id="btn-verify-token" onclick="verifyToken()">Verifikasi Token ➔</button>
+
+    <!-- Kotak Pemulihan Sesi (Auto-Resume) -->
+    <div id="token-resume-alert" hidden style="margin-top:24px;padding:16px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:8px">
+      <h2 style="margin:0 0 6px;font-size:1.05rem;color:var(--accent)">Sesi Pengerjaan Ditemukan!</h2>
+      <p id="resume-msg" style="font-size:0.92rem;margin-bottom:14px"></p>
+      <button type="button" class="primary" style="background:var(--ok);color:#fff" onclick="resumeSession()">Lanjutkan Pengerjaan ➔</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 1: FORM BIODATA & 90 PERNYATAAN PAPI -->
+  <div id="formView" hidden>
+    <h1>Perception and Preference Inventory (PAPI)</h1>
 
     <section class="card" aria-labelledby="ins">
       <h2 id="ins">Pedoman / Instruksi Mengerjakan</h2>
+      <p>Token Terverifikasi: <strong id="display-active-token" style="color:var(--accent)"></strong></p>
       <p>Pada halaman ini, Saudara akan membaca sejumlah pertanyaan dalam pasangan tentang berbagai hal yang mungkin Saudara suka atau tidak suka lakukan.</p>
       <p>Pada setiap nomor ada dua pernyataan. Pilih satu pernyataan yang lebih menggambarkan diri Saudara.</p>
       <div class="example">
@@ -94,18 +119,18 @@
       </div>
       <p>Mungkin Saudara menyukai kedua pernyataan. Dalam hal ini Saudara tetap diharapkan memilih salah satu, yaitu yang lebih Saudara sukai. Bila tidak suka keduanya, pilih yang tidak terlalu tidak Saudara sukai.</p>
       <p>Pilihan Saudara hendaknya didasarkan atas kesukaan Saudara sekarang, bukan atas apa yang Saudara anggap wajar. Ini bukan tes dengan jawaban benar atau salah. Apa yang Saudara pilih adalah gambaran dari apa yang Saudara suka lakukan.</p>
-      <p><strong>Buatlah pilihan pada setiap pasangan. Jangan ada yang dilewati.</strong> Panduan waktu: 16 menit.</p>
+      <p><strong>Buatlah pilihan pada setiap pasangan. Jangan ada yang dilewati.</strong> Panduan waktu: 15 menit.</p>
     </section>
 
     <form id="papi" novalidate autocomplete="off">
       <section class="card" aria-labelledby="idn">
-        <h2 id="idn">Data peserta</h2>
+        <h2 id="idn">Data Peserta</h2>
 
         <label class="field" for="email">Email <span class="req">*</span></label>
-        <input type="email" id="email" name="email" required autocomplete="email">
+        <input type="email" id="email" name="email" placeholder="nama@domain.com" required autocomplete="email">
 
-        <label class="field" for="nama">Nama <span class="req">*</span></label>
-        <input type="text" id="nama" name="nama" required autocomplete="name">
+        <label class="field" for="nama">Nama Lengkap <span class="req">*</span></label>
+        <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap" required autocomplete="name">
 
         <fieldset style="border:0;padding:0;margin:14px 0 0">
           <legend class="field" style="padding:0">Gender <span class="req">*</span></legend>
@@ -120,13 +145,13 @@
           <div class="choices">
             <label><input type="radio" name="pendidikan" value="S1"> S1</label>
             <label><input type="radio" name="pendidikan" value="D3"> D3</label>
-            <label><input type="radio" name="pendidikan" value="Other"> Other</label>
+            <label><input type="radio" name="pendidikan" value="Other"> Lainnya</label>
           </div>
           <input type="text" id="pendidikanLain" placeholder="Tulis pendidikan terakhir Anda" hidden style="margin-top:8px" aria-label="Pendidikan terakhir lainnya">
         </fieldset>
 
-        <label class="field" for="tgl">Tgl. tes <span class="req">*</span></label>
-        <input type="date" id="tgl" name="tgl" required>
+        <label class="field" for="tgl">Tgl. Tes <span class="req">*</span></label>
+        <input type="date" id="tgl" name="tgl" readonly required>
       </section>
 
       <div id="questions"></div>
@@ -136,30 +161,25 @@
       <div id="errBox" class="msg err" role="alert" hidden></div>
 
       <div class="actions">
-        <button type="submit" class="primary" id="submitBtn">Kirim jawaban</button>
-        <div style="margin-top:10px"><button type="button" class="link" id="resetBtn">Hapus semua jawaban</button></div>
+        <button type="submit" class="primary" id="submitBtn">Kirim Jawaban ✓</button>
       </div>
     </form>
   </div>
 
+  <!-- SCREEN 2: SELESAI -->
   <section id="doneView" class="card done" hidden>
-    <h2>Jawaban terkirim</h2>
-    <p>Terima kasih. Jawaban Saudara sudah tercatat dan Saudara boleh menutup halaman ini.</p>
+    <h2>Jawaban Terkirim</h2>
+    <p>Terima kasih. Jawaban Saudara sudah tercatat secara aman dan token Anda kini telah dinonaktifkan. Saudara boleh menutup halaman ini.</p>
   </section>
 
-  <section id="localView" class="card" hidden>
-    <h2>Jawaban belum terkirim ke Google Sheets</h2>
-    <p>Alamat Apps Script belum diatur, jadi jawaban hanya bisa disimpan sebagai file.</p>
-    <button type="button" class="primary" id="dlBtn">Unduh jawaban (.csv)</button>
-  </section>
 </main>
 
 <script>
 /* ============ PENGATURAN ============ */
-// Tempel URL "Web app" dari Google Apps Script di sini (berakhiran /exec).
-const APPS_SCRIPT_URL = "";
-const TEST_MINUTES = 16;   // hanya panduan waktu, tidak memblokir pengiriman
-const STORAGE_KEY = "papi_progress_v1";
+// Tempel URL "Web app" Google Apps Script PAPI di sini (berakhiran /exec)
+const APPS_SCRIPT_URL = "URL_WEBHOOK_GOOGLESHEET_PAPI_KAMU";
+const TEST_MINUTES = 15;   // Panduan waktu 15 menit
+const STORAGE_KEY = "papi_active_session";
 
 /* ============ 90 PASANGAN PERNYATAAN (a = atas, b = bawah) ============ */
 const QUESTIONS = [
@@ -255,12 +275,14 @@ const QUESTIONS = [
 ["Saya suka diberitahu tentang apa yang perlu dilakukan","Saya harus menyelesaikan apa yang saya mulai"]
 ];
 
-/* ============ LOGIKA HALAMAN ============ */
+/* ============ STATE & VARIABEL ============ */
 const $ = (id) => document.getElementById(id);
-const answers = new Array(QUESTIONS.length).fill(null); // "a" | "b" | null
+const answers = new Array(QUESTIONS.length).fill(null);
+let activeToken = "";
 let startedAt = null;
 let timerHandle = null;
 let submitting = false;
+let isTestActive = false;
 
 function todayISO(){
   const d = new Date();
@@ -268,6 +290,92 @@ function todayISO(){
   return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
 }
 
+/* ============ VERIFIKASI TOKEN & RESUME ============ */
+async function verifyToken(){
+  const val = $("input-token").value.trim().toUpperCase();
+  if (!val) return alert("Silakan masukkan kode token Anda!");
+
+  const voidTokens = JSON.parse(localStorage.getItem("papi_void_tokens") || "[]");
+  if (voidTokens.includes(val)){
+    return alert("Token ini sudah dinyatakan SELESAI (VOID) di perangkat ini.");
+  }
+
+  // Fast-resume jika token cocok dengan sesi lokal yang belum selesai
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved){
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.token === val){
+        resumeSession();
+        return;
+      }
+    } catch (e) {}
+  }
+
+  const btn = $("btn-verify-token");
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Memverifikasi ke Server...";
+
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=verifyToken&token=${encodeURIComponent(val)}`);
+    const result = await res.json();
+
+    if (!result.valid){
+      alert(result.message || "Token tidak valid!");
+      return;
+    }
+
+    activeToken = val;
+    openTestView();
+
+  } catch (err) {
+    console.error(err);
+    alert("Gagal menghubungi server verifikasi token. Pastikan koneksi internet stabil.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
+
+function openTestView(){
+  $("display-active-token").textContent = activeToken;
+  $("tokenView").hidden = true;
+  $("formView").hidden = false;
+  $("topbar").hidden = false;
+  isTestActive = true;
+  saveProgress();
+}
+
+function resumeSession(){
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) {}
+  if (!data || !data.token) return;
+
+  activeToken = data.token;
+  const p = data.p || {};
+  $("email").value = p.email || "";
+  $("nama").value = p.nama || "";
+  if (p.gender){ const r = document.querySelector("input[name=gender][value='" + p.gender + "']"); if (r) r.checked = true; }
+  if (p.pendidikan){ const r = document.querySelector("input[name=pendidikan][value='" + p.pendidikan + "']"); if (r) r.checked = true; }
+  $("pendidikanLain").value = p.pendidikanLain || "";
+  $("pendidikanLain").hidden = p.pendidikan !== "Other";
+  if (p.tgl) $("tgl").value = p.tgl;
+
+  (data.a || []).forEach((v, i) => {
+    if (v === "a" || v === "b"){
+      answers[i] = v;
+      const r = document.querySelector("input[name=q" + (i + 1) + "][value=" + v + "]");
+      if (r) r.checked = true;
+    }
+  });
+
+  if (data.s){ startedAt = data.s; runTimer(); }
+  updateProgress();
+  openTestView();
+}
+
+/* ============ PEMBANGUNAN SOAL & PROGRES ============ */
 function buildQuestions(){
   const host = $("questions");
   const frag = document.createDocumentFragment();
@@ -316,13 +424,14 @@ function updateProgress(){
   $("bar").setAttribute("aria-valuenow", done);
 }
 
-/* Timer (panduan saja) */
+/* Timer Panduan 15 Menit */
 function startTimerOnce(){
   if (startedAt) return;
   startedAt = Date.now();
   saveProgress();
   runTimer();
 }
+
 function runTimer(){
   if (timerHandle) return;
   const total = TEST_MINUTES * 60;
@@ -339,7 +448,6 @@ function runTimer(){
   timerHandle = setInterval(tick, 1000);
 }
 
-/* Simpan / pulihkan progres di perangkat peserta */
 function profile(){
   const pend = document.querySelector("input[name=pendidikan]:checked");
   const gen = document.querySelector("input[name=gender]:checked");
@@ -352,51 +460,43 @@ function profile(){
     tgl: $("tgl").value
   };
 }
+
 function saveProgress(){
+  if (!activeToken) return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ p: profile(), a: answers, s: startedAt }));
-  } catch (e) { /* penyimpanan dinonaktifkan: abaikan */ }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      token: activeToken,
+      p: profile(),
+      a: answers,
+      s: startedAt
+    }));
+  } catch (e) {}
 }
-function restoreProgress(){
-  let data = null;
-  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) {}
-  if (!data) return;
-  const p = data.p || {};
-  $("email").value = p.email || "";
-  $("nama").value = p.nama || "";
-  if (p.gender){ const r = document.querySelector("input[name=gender][value='" + p.gender + "']"); if (r) r.checked = true; }
-  if (p.pendidikan){ const r = document.querySelector("input[name=pendidikan][value='" + p.pendidikan + "']"); if (r) r.checked = true; }
-  $("pendidikanLain").value = p.pendidikanLain || "";
-  $("pendidikanLain").hidden = p.pendidikan !== "Other";
-  if (p.tgl) $("tgl").value = p.tgl;
-  (data.a || []).forEach((v, i) => {
-    if (v === "a" || v === "b"){
-      answers[i] = v;
-      const r = document.querySelector("input[name=q" + (i + 1) + "][value=" + v + "]");
-      if (r) r.checked = true;
-    }
-  });
-  if (data.s){ startedAt = data.s; runTimer(); }
-  updateProgress();
-}
+
 function clearProgress(){
   try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
 }
 
-/* Validasi */
+/* ============ VALIDASI & PENGIRIMAN ============ */
 function showError(text){
   const box = $("errBox");
   box.textContent = text;
   box.hidden = !text;
 }
+
 function validate(){
   const p = profile();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)){ $("email").focus(); return "Isi email dengan benar."; }
-  if (!p.nama){ $("nama").focus(); return "Isi nama."; }
-  if (!p.gender) return "Pilih gender.";
-  if (!p.pendidikan) return "Pilih pendidikan terakhir.";
-  if (p.pendidikan === "Other" && !p.pendidikanLain){ $("pendidikanLain").focus(); return "Tulis pendidikan terakhir Anda."; }
-  if (!p.tgl){ $("tgl").focus(); return "Isi tanggal tes."; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)){$("email").focus(); return "Format email tidak valid (contoh: nama@domain.com)."; }
+  if (!p.nama){ $("nama").focus(); return "Mohon isi Nama Lengkap Anda."; }
+  if (!p.gender) return "Mohon pilih Gender.";
+  if (!p.pendidikan) return "Mohon pilih Pendidikan Terakhir.";
+  if (p.pendidikan === "Other" && !p.pendidikanLain){ $("pendidikanLain").focus(); return "Mohon tulis pendidikan terakhir Anda."; }
+  if (!p.tgl){ $("tgl").focus(); return "Tanggal tes wajib terisi."; }
+  
+  if (localStorage.getItem("papi_done_" + p.email)){
+    return "Email ini tercatat sudah pernah menyelesaikan asesmen PAPI.";
+  }
+
   const missing = [];
   answers.forEach((v, i) => { if (!v) missing.push(i + 1); });
   document.querySelectorAll(".q").forEach((el, i) => el.classList.toggle("missing", !answers[i]));
@@ -408,18 +508,19 @@ function validate(){
   return "";
 }
 
-/* Kirim */
 function buildPayload(){
   const p = profile();
   return {
+    timestamp: new Date().toLocaleString("id-ID"),
+    token: activeToken,
     email: p.email,
     nama: p.nama,
     gender: p.gender,
     pendidikan: p.pendidikan === "Other" ? "Other: " + p.pendidikanLain : p.pendidikan,
     tglTes: p.tgl,
     answers: answers.slice(),
-    durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : null,
-    website: $("website").value // jebakan bot; harus kosong
+    durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
+    website: $("website").value
   };
 }
 
@@ -429,72 +530,81 @@ async function submitForm(ev){
   const err = validate();
   showError(err);
   if (err) return;
-  const payload = buildPayload();
-
-  if (!APPS_SCRIPT_URL){
-    $("formView").hidden = true;
-    $("localView").hidden = false;
-    window.scrollTo({ top: 0 });
-    return;
-  }
 
   submitting = true;
+  isTestActive = false;
+  const payload = buildPayload();
+
   const btn = $("submitBtn");
   btn.disabled = true;
-  btn.textContent = "Mengirim...";
+  btn.textContent = "Mengirim jawaban...";
+
   try {
-    // text/plain + no-cors menghindari preflight CORS pada Apps Script.
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     });
+
+    // Tandai token & email selesai setelah pengiriman sukses
+    let voidTokens = JSON.parse(localStorage.getItem("papi_void_tokens") || "[]");
+    if (activeToken && !voidTokens.includes(activeToken)){
+      voidTokens.push(activeToken);
+      localStorage.setItem("papi_void_tokens", JSON.stringify(voidTokens));
+    }
+    localStorage.setItem("papi_done_" + payload.email, "true");
     clearProgress();
     if (timerHandle) clearInterval(timerHandle);
+
+    $("tokenView").hidden = true;
     $("formView").hidden = true;
+    $("topbar").hidden = true;
     $("doneView").hidden = false;
     window.scrollTo({ top: 0 });
   } catch (e) {
-    showError("Jawaban belum terkirim. Periksa koneksi internet lalu tekan Kirim jawaban lagi. Jawaban Anda masih tersimpan di halaman ini.");
+    showError("Jawaban belum terkirim. Periksa koneksi internet lalu tekan Kirim Jawaban lagi. Jawaban Anda masih tersimpan di halaman ini.");
     btn.disabled = false;
-    btn.textContent = "Kirim jawaban";
+    btn.textContent = "Kirim Jawaban ✓";
     submitting = false;
+    isTestActive = true;
   }
 }
 
-function downloadCsv(){
-  const p = buildPayload();
-  const head = ["Email","Nama","Gender","Pendidikan","Tgl Tes"].concat(QUESTIONS.map((_, i) => "Q" + (i + 1)));
-  const row = [p.email, p.nama, p.gender, p.pendidikan, p.tglTes].concat(p.answers.map((a) => a.toUpperCase()));
-  const q = (s) => '"' + String(s).replace(/"/g, '""') + '"';
-  const csv = head.map(q).join(",") + "\n" + row.map(q).join(",");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-  a.download = "papi-jawaban.csv";
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
+// Cegah keluar tab secara tidak sengaja saat sedang mengisi
+window.addEventListener("beforeunload", (e) => {
+  if (isTestActive && localStorage.getItem(STORAGE_KEY)){
+    e.preventDefault();
+    e.returnValue = "Pengerjaan sedang berlangsung. Progres Anda tersimpan.";
+  }
+});
 
-/* Mulai */
+/* ============ INISIALISASI ============ */
 document.addEventListener("DOMContentLoaded", () => {
   $("tgl").value = todayISO();
   buildQuestions();
-  restoreProgress();
-  $("configWarn").hidden = !!APPS_SCRIPT_URL;
+
+  // Tampilkan kotak Resume di Screen 0 jika ada sesi aktif yang belum selesai
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved){
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.token){
+        const doneCount = (parsed.a || []).filter(Boolean).length;
+        $("input-token").value = parsed.token;
+        $("resume-msg").innerHTML = `Token: <strong>${parsed.token}</strong> (${parsed.p?.nama || "Peserta"})<br>Progres tersimpan: <strong>${doneCount} / 90 soal terjawab</strong>.`;
+        $("token-resume-alert").hidden = false;
+      }
+    } catch (e) {}
+  }
+
   $("papi").addEventListener("submit", submitForm);
-  $("dlBtn").addEventListener("click", downloadCsv);
   document.querySelectorAll("input[name=pendidikan]").forEach((r) => r.addEventListener("change", () => {
     $("pendidikanLain").hidden = r.value !== "Other" || !r.checked;
     saveProgress();
   }));
-  ["email", "nama", "tgl", "pendidikanLain"].forEach((id) => $(id).addEventListener("input", saveProgress));
+  ["email", "nama", "pendidikanLain"].forEach((id) => $(id).addEventListener("input", saveProgress));
   document.querySelectorAll("input[name=gender]").forEach((r) => r.addEventListener("change", saveProgress));
-  $("resetBtn").addEventListener("click", () => {
-    if (!confirm("Hapus semua jawaban dan mulai dari awal?")) return;
-    clearProgress();
-    location.reload();
-  });
 });
 </script>
 </body>
