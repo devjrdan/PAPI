@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perception and Preference Inventory (PAPI)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF1F4; --card:#FFFFFF; --ink:#18222E; --muted:#55616F; --line:#CBD3DC;
+    --accent:#1F4E79; --accent-soft:#E3EDF6; --ok:#1E7A4F; --err:#B3261E; --err-soft:#FBEAE8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#10161D; --card:#18212B; --ink:#E7ECF1; --muted:#9AA7B5; --line:#2B3846;
+      --accent:#7FB2E5; --accent-soft:#1E3550; --ok:#5CCB92; --err:#FF8A80; --err-soft:#3A1F1D;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-padding-top:84px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px 120px}
+  header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+  .top-in{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+  .top-in strong{font-size:1rem;white-space:nowrap}
+  .bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+  .count,.timer{font-size:.9rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+  h1{font-size:1.8rem;line-height:1.2;margin:28px 0 6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:16px 0}
+  .card h2{font-size:1.15rem;margin:0 0 10px}
+  .card p{margin:0 0 10px;max-width:68ch}
+  .example{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+  .example .opt{margin:6px 0 0}
+  label.field{display:block;font-weight:700;margin:14px 0 4px}
+  label.field span.req,.req{color:var(--err)}
+  input[type=text],input[type=email],input[type=date]{width:100%;padding:11px 12px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px}
+  .choices{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:4px}
+  .choices label{display:flex;align-items:center;gap:8px;cursor:pointer}
+  input[type=radio]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .q{padding:16px 18px}
+  .q.missing{border-color:var(--err);background:var(--err-soft)}
+  .q-head{font-weight:700;margin-bottom:8px;color:var(--muted);font-size:.95rem}
+  .opt{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;margin-top:8px;background:var(--card)}
+  .opt:hover{border-color:var(--accent)}
+  .opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 4px 0 0 var(--accent)}
+  .opt input{margin-top:3px}
+  .hp{position:absolute;left:-9999px;height:0;width:0;overflow:hidden}
+  .actions{margin:24px 0}
+  button.primary{font:inherit;font-weight:700;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:14px 26px;cursor:pointer;min-width:200px}
+  @media (prefers-color-scheme: dark){button.primary{color:#0B1620}}
+  button.primary:disabled{opacity:.55;cursor:wait}
+  button.link{font:inherit;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0}
+  .msg{padding:12px 14px;border-radius:8px;margin:12px 0}
+  .msg.err{background:var(--err-soft);color:var(--err);border:1px solid var(--err)}
+  .msg.warn{background:var(--accent-soft);border:1px solid var(--accent)}
+  .done{text-align:center;padding:48px 20px}
+  .done h2{font-size:1.5rem;color:var(--ok)}
+  [hidden]{display:none!important}
+  @media (max-width:520px){body{font-size:17px}h1{font-size:1.5rem}.top-in strong{display:none}}
+</style>
+</head>
+<body>
+
+<header class="top" id="topbar">
+  <div class="top-in">
+    <strong>PAPI</strong>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="90" aria-valuenow="0" id="bar"><i></i></div>
+    <span class="count" id="count">0 / 90</span>
+    <span class="timer" id="timer" title="Panduan waktu pengerjaan">16:00</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="formView">
+    <h1>Perception and Preference Inventory (PAPI)</h1>
+
+    <div id="configWarn" class="msg warn" hidden>
+      Alamat Google Apps Script belum diisi (<code>APPS_SCRIPT_URL</code> di bagian atas skrip). Jawaban tidak akan terkirim ke Google Sheets; Anda hanya bisa mengunduhnya sebagai file.
+    </div>
+
+    <section class="card" aria-labelledby="ins">
+      <h2 id="ins">Pedoman / Instruksi Mengerjakan</h2>
+      <p>Pada halaman ini, Saudara akan membaca sejumlah pertanyaan dalam pasangan tentang berbagai hal yang mungkin Saudara suka atau tidak suka lakukan.</p>
+      <p>Pada setiap nomor ada dua pernyataan. Pilih satu pernyataan yang lebih menggambarkan diri Saudara.</p>
+      <div class="example">
+        <strong>Contoh</strong>
+        <div class="opt" style="cursor:default"><input type="radio" disabled checked aria-label="contoh pilihan pertama"><span>Saya suka memberi petunjuk kepada orang bagaimana melakukan sesuatu</span></div>
+        <div class="opt" style="cursor:default"><input type="radio" disabled aria-label="contoh pilihan kedua"><span>Saya ingin melakukan sesuatu sebaik mungkin</span></div>
+        <p style="margin:10px 0 0">Bila Saudara lebih suka memberi petunjuk kepada orang daripada ingin melakukan sesuatu sebaik mungkin, pilih pernyataan <strong>pertama (atas)</strong>. Bila sebaliknya, pilih pernyataan <strong>kedua (bawah)</strong>.</p>
+      </div>
+      <p>Mungkin Saudara menyukai kedua pernyataan. Dalam hal ini Saudara tetap diharapkan memilih salah satu, yaitu yang lebih Saudara sukai. Bila tidak suka keduanya, pilih yang tidak terlalu tidak Saudara sukai.</p>
+      <p>Pilihan Saudara hendaknya didasarkan atas kesukaan Saudara sekarang, bukan atas apa yang Saudara anggap wajar. Ini bukan tes dengan jawaban benar atau salah. Apa yang Saudara pilih adalah gambaran dari apa yang Saudara suka lakukan.</p>
+      <p><strong>Buatlah pilihan pada setiap pasangan. Jangan ada yang dilewati.</strong> Panduan waktu: 16 menit.</p>
+    </section>
+
+    <form id="papi" novalidate autocomplete="off">
+      <section class="card" aria-labelledby="idn">
+        <h2 id="idn">Data peserta</h2>
+
+        <label class="field" for="email">Email <span class="req">*</span></label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+
+        <label class="field" for="nama">Nama <span class="req">*</span></label>
+        <input type="text" id="nama" name="nama" required autocomplete="name">
+
+        <fieldset style="border:0;padding:0;margin:14px 0 0">
+          <legend class="field" style="padding:0">Gender <span class="req">*</span></legend>
+          <div class="choices">
+            <label><input type="radio" name="gender" value="Laki-laki"> Laki-laki</label>
+            <label><input type="radio" name="gender" value="Perempuan"> Perempuan</label>
+          </div>
+        </fieldset>
+
+        <fieldset style="border:0;padding:0;margin:14px 0 0">
+          <legend class="field" style="padding:0">Pendidikan Terakhir <span class="req">*</span></legend>
+          <div class="choices">
+            <label><input type="radio" name="pendidikan" value="S1"> S1</label>
+            <label><input type="radio" name="pendidikan" value="D3"> D3</label>
+            <label><input type="radio" name="pendidikan" value="Other"> Other</label>
+          </div>
+          <input type="text" id="pendidikanLain" placeholder="Tulis pendidikan terakhir Anda" hidden style="margin-top:8px" aria-label="Pendidikan terakhir lainnya">
+        </fieldset>
+
+        <label class="field" for="tgl">Tgl. tes <span class="req">*</span></label>
+        <input type="date" id="tgl" name="tgl" required>
+      </section>
+
+      <div id="questions"></div>
+
+      <div class="hp" aria-hidden="true"><label>Website <input type="text" id="website" tabindex="-1" autocomplete="off"></label></div>
+
+      <div id="errBox" class="msg err" role="alert" hidden></div>
+
+      <div class="actions">
+        <button type="submit" class="primary" id="submitBtn">Kirim jawaban</button>
+        <div style="margin-top:10px"><button type="button" class="link" id="resetBtn">Hapus semua jawaban</button></div>
+      </div>
+    </form>
+  </div>
+
+  <section id="doneView" class="card done" hidden>
+    <h2>Jawaban terkirim</h2>
+    <p>Terima kasih. Jawaban Saudara sudah tercatat dan Saudara boleh menutup halaman ini.</p>
+  </section>
+
+  <section id="localView" class="card" hidden>
+    <h2>Jawaban belum terkirim ke Google Sheets</h2>
+    <p>Alamat Apps Script belum diatur, jadi jawaban hanya bisa disimpan sebagai file.</p>
+    <button type="button" class="primary" id="dlBtn">Unduh jawaban (.csv)</button>
+  </section>
+</main>
+
+<script>
+/* ============ PENGATURAN ============ */
+// Tempel URL "Web app" dari Google Apps Script di sini (berakhiran /exec).
+const APPS_SCRIPT_URL = "";
+const TEST_MINUTES = 16;   // hanya panduan waktu, tidak memblokir pengiriman
+const STORAGE_KEY = "papi_progress_v1";
+
+/* ============ 90 PASANGAN PERNYATAAN (a = atas, b = bawah) ============ */
+const QUESTIONS = [
+["Saya seorang pekerja keras","Saya bukan seorang pemurung"],
+["Saya suka bekerja lebih baik dari yang lain","Saya suka menekuni pekerjaan yang saya lakukan sampai selesai"],
+["Saya suka memberi petunjuk kepada orang bagaimana melakukan sesuatu","Saya ingin melakukan sesuatu sebaik mungkin"],
+["Saya suka melakukan hal-hal yang lucu","Saya senang memberi tahu orang apa yang harus di kerjakannya"],
+["Saya suka bergabung dengan kelompok","Saya senang di perhatikan oleh kelompok"],
+["Saya suka membina suatu hubungan persahabatan antar pribadi","Saya suka berteman dengan suatu kelompok"],
+["Saya cepat berubah jika saya rasa hal itu diperlukan","Saya berusaha membina hubungan yang akrab dengan teman saya"],
+["Saya suka membalas jika saya disakiti","Saya suka melakukan hal-hal yang baru dan berbeda"],
+["Saya ingin atasan saya menyukai saya","Saya suka memberi tahu orang jika mereka salah"],
+["Saya suka mengikuti petunjuk-petunjuk yang diberikan kepada saya","Saya suka mendukung pendapat atasan saya"],
+["Saya berusaha sangat keras","Saya seorang teratur, saya menaruh semua barang pada tempatnya"],
+["Saya dapat membuat orang mau bekerja keras","Saya tidak mudah marah"],
+["Saya suka memberi tahu kelompok apa yang harus dikerjakan","Saya selalu menekuni suatu pekerjaan sampai selesai"],
+["Saya ingin tampil menarik dan menakjubkan","Saya ingin menjadi orang yang berhasil"],
+["Saya ingin sesuai dan di terima dalam kelompok","Saya suka membantu orang dalam mengambil sikap"],
+["Saya cemas jika seseorang tidak menyukai saya","Saya suka orang memperhatikan saya"],
+["Saya suka mencoba hal-hal baru","Saya lebih suka bekerja bersama orang lain daripada sendiri"],
+["Saya kadang-kadang menyalahkan orang lain jika terjadi kesalahan","Saya merasa terganggu jika ada yang tidak menyukai saya"],
+["Saya suka mendukung pendapat atasan saya","Saya suka mencoba pekerjaan-pekerjaan yang baru dan berbeda"],
+["Saya menyukai petunjuk terperinci dalam menyelesaikan permasalahan","Saya suka memberi tahu bila orang membuat saya kesal"],
+["Saya selalu berusaha keras","Saya suka melaksanakan setiap langkah dengan hati-hati"],
+["Saya seorang pemimpin yang baik","Saya dapat mengorganisir suatu pekerjaan dengan baik"],
+["Saya mudah tersinggung","Saya lambat dalam membuat keputusan"],
+["Dalam suatu kelompok saya lebih suka diam","Saya suka mengerjakan beberapa pekerjaan sekaligus"],
+["Saya sangat suka bila saya di undang","Saya ingin lebih baik dari yang lain dalam mengerjakan sesuatu"],
+["Saya suka membina hubungan yang akrab dengan teman-teman saya","Saya suka menasehati orang lain"],
+["Saya suka melakukan hal-hal yang baru dan berbeda","Saya suka menceritakan bagaimana saya berhasil melakukan sesuatu"],
+["Bila saya betul, saya suka mempertahankannya","Saya ingin diterima dan diakui dalam suatu kelompok"],
+["Saya berusaha untuk tidak menjadi seorang yang berbeda","Saya berusaha untuk dekat sekali dengan orang lain"],
+["Saya senang diberi tahu bagaimana melakukan suatu pekerjaan","Saya mudah bosan"],
+["Saya bekerja keras","Saya banyak berfikir dan membuat rencana"],
+["Saya memimpin kelompok","Detail (hal-hal kecil) menarik bagi saya"],
+["Saya mengambil keputusan secara mudah dan cepat","Saya menyimpan barang-barang saya secara rapih dan teratur"],
+["Biasanya saya bekerja dengan tergesa-gesa","Saya jarang marah atau bersedih"],
+["Saya ingin menjadi bagian dari kelompok","Saya ingin melakukan satu pekerjaan pada satu saat"],
+["Saya berusaha berteman secara akrab","Saya berusaha sangat keras untuk menjadi yang terbaik"],
+["Saya ingin menjadi bagian dari suatu kelompok","Saya berusaha menjadi yang terbaik"],
+["Saya menyukai perdebatan","Saya suka mendapatkan perhatian"],
+["Saya suka mendukung orang-orang yang manjadi atasan saya","Saya tertarik menjadi bagian dari kelompok"],
+["Saya suka mengikuti peraturan dengan hati-hati","Saya suka orang mengenal saya dengan baik"],
+["Saya berusaha keras sekali","Saya sangat ramah"],
+["Orang menilai saya seorang pemimpin yang baik","Saya berfikir panjang dan hati-hati"],
+["Saya sering mengambil resiko/coba-coba","Saya sering mengurus hal-hal kecil/detail"],
+["Orang berpendapat bahwa saya bekerja cepat","Saya sering mengurus hal-hal kecil/detail"],
+["Saya senang mengikuti pertandingan dan olah raga","Saya mempunyai pribadi yang menyenangkan"],
+["Saya senang jika orang dekat","Saya mempunyai pribadi yang menyenangkan"],
+["Saya senang bereksperimen dan mencoba hal-hal baru","Saya suka melaksanakan suatu pekerjaan sulit dengan baik"],
+["Saya suka diperlakukan secara adil","Saya suka memberi tahu orang lain bagaimana meleksanakan suatu pekerjaan"],
+["Saya suka melakukan apa yang diharapkan oleh saya","Saya suka memperoleh perhatian"],
+["Saya suka petunjuk-petunjuk terperinci untuk melaksanakan suatu tugas","Saya senang berada bersama orang lain"],
+["Saya selalu berusaha menyelesaikan pekerjaan secara sempurna","Orang mengatakan bahwa saya tidak mengenal lelah"],
+["Saya tipe pemimpin","Saya mudah berteman"],
+["Saya selalu berspekulasi","Saya banyak sekali berfikir"],
+["Saya bekerja dengan kecepatan teratur dan tetap","Saya senang bekerja dengan hal-hal kecil/terperinci"],
+["Saya bersemangat untuk mengikuti berbagai pertandingan dalam olah raga","Saya suka mengatur dan menyimpan barang-barang secara rapi dan teratur"],
+["Saya dapat bergaul secara baik dengan semua orang","Saya adalah seorang yang mempunyai pembawaan tenang"],
+["Saya ingin bertemu dengan orang-orang baru dan melakukan hal-hal baru","Saya selalu ingin menyelesaikan pekerjaan yang telah saya mulai"],
+["Saya biasanya mempertahankan pendapat yang saya yakini","Saya biasanya suka bekerja keras"],
+["Saya suka saran-saran dari orang yang saya kagumi","Saya senang diserahi tanggung jawab atas kelompok orang"],
+["Saya biarkan diri saya banyak dipengaruhi orang lain","Saya suka jika mendapat banyak perhatian"],
+["Saya berusaha bekerja keras","Saya mengerjakan sesuatu secara cepat"],
+["Apabila saya bicara, kelompok mendengarkan","Saya terampil menggunakan perkakas atau (alat-alat)"],
+["Saya lambat dalam membina hubungan","Saya lambat dalam mengambil keputusan"],
+["Saya biasanya makan secara cepat","Saya suka membaca"],
+["Saya suka pekerjaan dimana saya banyak bergerak","Saya suka pekerjaan yang harus dilakukan secara hati-hati"],
+["Saya mencari teman sebanyak mungkin","Apa yang sudah saya simpan, akan mudah saya temukan kembali"],
+["Saya merencanakan jauh-jauh berikutnya","Saya selalu menyenangkan"],
+["Saya mempertahankan nama baik saya dengan bangga","Saya terus menekuni suatu masalah sampai selesai"],
+["Saya suka mendukung orang-orang yang saya kagumi","Saya ingin sukses"],
+["Saya suka orang lain yang memutuskan untuk kelompok","Saya suka membuat keputusan untuk kelompok"],
+["Saya selalu berusaha berkerja keras","Saya mengambil keputusan secara cepat dan mudah"],
+["Kelompok biasanya melakukan apa yang saya inginkan","Saya biasa terburu-buru"],
+["Saya sering merasa lelah","Saya lamban dalam menentukan sikap"],
+["Saya bekerja cepat","Saya mudah berteman"],
+["Saya biasanya mempunyai semangat dan tenaga","Saya banyak menghabiskan waktu dengan berfikir"],
+["Saya sangat ramah terhadap orang","Saya suka pekerjaan yang memerlukan ketelitian"],
+["Saya banyak berfikir dan merencanakan","Saya menyimpan segala sesuatu pada tempatnya"],
+["Saya suka pekerjaan yang harus memperhatikan hal-hal kecil (detail)","Saya tidak mudah marah"],
+["Saya suka mengikuti orang yang saya kagumi","Saya selalu menyelesaikan pekerjaan yang telah saya mulai"],
+["Saya suka petunjuk-petunjuk yang jelas","Saya suka bekerja keras"],
+["Saya mengejar apa yang saya inginkan","Saya seorang pemimpin yang baik"],
+["Saya dapat membuat orang lain bekerja sesuai dengan yang saya inginkan","Saya seorang yang tergolong santai dan beruntung"],
+["Saya mengambil keputusan secara mudah dan amat cepat","Saya bicara secara cepat"],
+["Saya biasanya bekerja cepat","Saya pemimpin yang baik"],
+["Saya tidak suka bertemu dangan orang","Saya cepat merasa lelah"],
+["Saya mempunyai banyak sekali teman","Saya banyak menghabiskan waktu dengan berfikir"],
+["Saya suka berjalan dengan teori","Saya suka bekerja dengan hal-hal yang teperinci"],
+["Saya menikmati pekerjaan yang melibatkan hal-hal kecil (detail)","Saya suka mengorganisir pekerjaan saya"],
+["Saya menaruh barang pada tempatnya","Saya selalu menyenangkan"],
+["Saya suka diberitahu tentang apa yang perlu dilakukan","Saya harus menyelesaikan apa yang saya mulai"]
+];
+
+/* ============ LOGIKA HALAMAN ============ */
+const $ = (id) => document.getElementById(id);
+const answers = new Array(QUESTIONS.length).fill(null); // "a" | "b" | null
+let startedAt = null;
+let timerHandle = null;
+let submitting = false;
+
+function todayISO(){
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+
+function buildQuestions(){
+  const host = $("questions");
+  const frag = document.createDocumentFragment();
+  QUESTIONS.forEach((pair, i) => {
+    const n = i + 1;
+    const sec = document.createElement("section");
+    sec.className = "card q";
+    sec.id = "q" + n;
+    sec.setAttribute("aria-labelledby", "qh" + n);
+    const head = document.createElement("div");
+    head.className = "q-head";
+    head.id = "qh" + n;
+    head.innerHTML = "Pertanyaan " + n + " <span class=\"req\">*</span>";
+    sec.appendChild(head);
+    ["a", "b"].forEach((letter, k) => {
+      const lab = document.createElement("label");
+      lab.className = "opt";
+      const inp = document.createElement("input");
+      inp.type = "radio";
+      inp.name = "q" + n;
+      inp.value = letter;
+      inp.addEventListener("change", () => onAnswer(i, letter));
+      const span = document.createElement("span");
+      span.textContent = pair[k];
+      lab.appendChild(inp);
+      lab.appendChild(span);
+      sec.appendChild(lab);
+    });
+    frag.appendChild(sec);
+  });
+  host.appendChild(frag);
+}
+
+function onAnswer(i, letter){
+  answers[i] = letter;
+  $("q" + (i + 1)).classList.remove("missing");
+  startTimerOnce();
+  updateProgress();
+  saveProgress();
+}
+
+function updateProgress(){
+  const done = answers.filter(Boolean).length;
+  $("count").textContent = done + " / " + QUESTIONS.length;
+  $("bar").firstElementChild.style.width = (done / QUESTIONS.length * 100) + "%";
+  $("bar").setAttribute("aria-valuenow", done);
+}
+
+/* Timer (panduan saja) */
+function startTimerOnce(){
+  if (startedAt) return;
+  startedAt = Date.now();
+  saveProgress();
+  runTimer();
+}
+function runTimer(){
+  if (timerHandle) return;
+  const total = TEST_MINUTES * 60;
+  const tick = () => {
+    const left = total - Math.floor((Date.now() - startedAt) / 1000);
+    const t = $("timer");
+    if (left >= 0){
+      t.textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
+    } else {
+      t.textContent = "+" + Math.floor(-left / 60) + " mnt";
+    }
+  };
+  tick();
+  timerHandle = setInterval(tick, 1000);
+}
+
+/* Simpan / pulihkan progres di perangkat peserta */
+function profile(){
+  const pend = document.querySelector("input[name=pendidikan]:checked");
+  const gen = document.querySelector("input[name=gender]:checked");
+  return {
+    email: $("email").value.trim(),
+    nama: $("nama").value.trim(),
+    gender: gen ? gen.value : "",
+    pendidikan: pend ? pend.value : "",
+    pendidikanLain: $("pendidikanLain").value.trim(),
+    tgl: $("tgl").value
+  };
+}
+function saveProgress(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ p: profile(), a: answers, s: startedAt }));
+  } catch (e) { /* penyimpanan dinonaktifkan: abaikan */ }
+}
+function restoreProgress(){
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) {}
+  if (!data) return;
+  const p = data.p || {};
+  $("email").value = p.email || "";
+  $("nama").value = p.nama || "";
+  if (p.gender){ const r = document.querySelector("input[name=gender][value='" + p.gender + "']"); if (r) r.checked = true; }
+  if (p.pendidikan){ const r = document.querySelector("input[name=pendidikan][value='" + p.pendidikan + "']"); if (r) r.checked = true; }
+  $("pendidikanLain").value = p.pendidikanLain || "";
+  $("pendidikanLain").hidden = p.pendidikan !== "Other";
+  if (p.tgl) $("tgl").value = p.tgl;
+  (data.a || []).forEach((v, i) => {
+    if (v === "a" || v === "b"){
+      answers[i] = v;
+      const r = document.querySelector("input[name=q" + (i + 1) + "][value=" + v + "]");
+      if (r) r.checked = true;
+    }
+  });
+  if (data.s){ startedAt = data.s; runTimer(); }
+  updateProgress();
+}
+function clearProgress(){
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+
+/* Validasi */
+function showError(text){
+  const box = $("errBox");
+  box.textContent = text;
+  box.hidden = !text;
+}
+function validate(){
+  const p = profile();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)){ $("email").focus(); return "Isi email dengan benar."; }
+  if (!p.nama){ $("nama").focus(); return "Isi nama."; }
+  if (!p.gender) return "Pilih gender.";
+  if (!p.pendidikan) return "Pilih pendidikan terakhir.";
+  if (p.pendidikan === "Other" && !p.pendidikanLain){ $("pendidikanLain").focus(); return "Tulis pendidikan terakhir Anda."; }
+  if (!p.tgl){ $("tgl").focus(); return "Isi tanggal tes."; }
+  const missing = [];
+  answers.forEach((v, i) => { if (!v) missing.push(i + 1); });
+  document.querySelectorAll(".q").forEach((el, i) => el.classList.toggle("missing", !answers[i]));
+  if (missing.length){
+    $("q" + missing[0]).scrollIntoView({ behavior: "smooth", block: "center" });
+    const list = missing.length > 12 ? missing.slice(0, 12).join(", ") + ", ..." : missing.join(", ");
+    return missing.length + " pertanyaan belum dijawab (nomor " + list + "). Semua nomor wajib diisi.";
+  }
+  return "";
+}
+
+/* Kirim */
+function buildPayload(){
+  const p = profile();
+  return {
+    email: p.email,
+    nama: p.nama,
+    gender: p.gender,
+    pendidikan: p.pendidikan === "Other" ? "Other: " + p.pendidikanLain : p.pendidikan,
+    tglTes: p.tgl,
+    answers: answers.slice(),
+    durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : null,
+    website: $("website").value // jebakan bot; harus kosong
+  };
+}
+
+async function submitForm(ev){
+  ev.preventDefault();
+  if (submitting) return;
+  const err = validate();
+  showError(err);
+  if (err) return;
+  const payload = buildPayload();
+
+  if (!APPS_SCRIPT_URL){
+    $("formView").hidden = true;
+    $("localView").hidden = false;
+    window.scrollTo({ top: 0 });
+    return;
+  }
+
+  submitting = true;
+  const btn = $("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "Mengirim...";
+  try {
+    // text/plain + no-cors menghindari preflight CORS pada Apps Script.
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    clearProgress();
+    if (timerHandle) clearInterval(timerHandle);
+    $("formView").hidden = true;
+    $("doneView").hidden = false;
+    window.scrollTo({ top: 0 });
+  } catch (e) {
+    showError("Jawaban belum terkirim. Periksa koneksi internet lalu tekan Kirim jawaban lagi. Jawaban Anda masih tersimpan di halaman ini.");
+    btn.disabled = false;
+    btn.textContent = "Kirim jawaban";
+    submitting = false;
+  }
+}
+
+function downloadCsv(){
+  const p = buildPayload();
+  const head = ["Email","Nama","Gender","Pendidikan","Tgl Tes"].concat(QUESTIONS.map((_, i) => "Q" + (i + 1)));
+  const row = [p.email, p.nama, p.gender, p.pendidikan, p.tglTes].concat(p.answers.map((a) => a.toUpperCase()));
+  const q = (s) => '"' + String(s).replace(/"/g, '""') + '"';
+  const csv = head.map(q).join(",") + "\n" + row.map(q).join(",");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = "papi-jawaban.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* Mulai */
+document.addEventListener("DOMContentLoaded", () => {
+  $("tgl").value = todayISO();
+  buildQuestions();
+  restoreProgress();
+  $("configWarn").hidden = !!APPS_SCRIPT_URL;
+  $("papi").addEventListener("submit", submitForm);
+  $("dlBtn").addEventListener("click", downloadCsv);
+  document.querySelectorAll("input[name=pendidikan]").forEach((r) => r.addEventListener("change", () => {
+    $("pendidikanLain").hidden = r.value !== "Other" || !r.checked;
+    saveProgress();
+  }));
+  ["email", "nama", "tgl", "pendidikanLain"].forEach((id) => $(id).addEventListener("input", saveProgress));
+  document.querySelectorAll("input[name=gender]").forEach((r) => r.addEventListener("change", saveProgress));
+  $("resetBtn").addEventListener("click", () => {
+    if (!confirm("Hapus semua jawaban dan mulai dari awal?")) return;
+    clearProgress();
+    location.reload();
+  });
+});
+</script>
+</body>
+</html>
