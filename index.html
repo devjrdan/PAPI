@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perception and Preference Inventory (PAPI)</title>
+  <title>Perception and Preference Inventory (PAPI) - ALBÉA INDONESIA</title>
   <style>
     :root { 
       --primary: #1f4e79; 
@@ -102,7 +102,6 @@
     .form-group input { width: 100%; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border); outline: none; font-size: 1rem; }
     .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.12); }
 
-    /* Anti-Warp Flex Options */
     .choices { display: flex; flex-wrap: wrap; gap: 14px 28px; margin-top: 8px; }
     .choices label { 
       display: inline-flex; 
@@ -110,7 +109,7 @@
       gap: 8px; 
       cursor: pointer; 
       font-size: 0.95rem; 
-      white-space: nowrap; /* Mencegah Laki-laki patah menjadi 2 baris */
+      white-space: nowrap; 
     }
     .choices input[type=radio] { transform: scale(1.2); accent-color: var(--primary); }
 
@@ -118,7 +117,7 @@
     .btn:hover { background: var(--primary-dark); }
     .btn:disabled { background: #94a3b8; cursor: not-allowed; }
     
-    /* Kotak Pertanyaan PAPI */
+    /* Kotak Soal PAPI */
     .q-box { 
       background: #ffffff; 
       border: 1px solid var(--border); 
@@ -198,46 +197,46 @@
 
       <button class="btn" id="btn-verify-token" onclick="verifyToken()">Verifikasi Token ➔</button>
 
-      <!-- Banner Resume Sesi Otomatis -->
+      <!-- Banner Resume Sesi Otomatis (Tanpa Tombol Reset) -->
       <div id="token-resume-alert" hidden style="margin-top: 24px; padding: 18px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
         <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 6px;">Sesi Pengerjaan Ditemukan!</h3>
         <p id="resume-msg" style="margin-bottom: 14px; font-size: 0.92rem; color: #1e293b;"></p>
-        <button class="btn" style="background: var(--accent);" onclick="resumeSession()">Lanjutkan Pengerjaan ➔</button>
+        <button class="btn" style="background: var(--accent); width: 100%;" onclick="resumeSession()">Lanjutkan Pengerjaan ➔</button>
       </div>
     </div>
 
-    <!-- SCREEN 1: DATA DIRI PESERTA (HALAMAN TERSENDIRI) -->
+    <!-- SCREEN 1: DATA DIRI PESERTA (STANDAR 5 KOLOM BAKU) -->
     <div id="screen-profile" hidden>
       <h1>Data Diri Peserta</h1>
-      <p>Token Terverifikasi: <strong id="display-active-token" style="color: var(--primary);"></strong>. Lengkapi identitas Saudara sebelum membuka lembar instruksi & soal.</p>
+      <p>Token Terverifikasi: <strong id="display-active-token" style="color: var(--primary);"></strong>. Lengkapi identitas Anda sebelum membuka lembar instruksi & soal.</p>
 
-      <div class="card" style="max-width: 580px;">
+      <div class="card" style="max-width: 620px;">
         <div class="form-group">
-          <label>Email Aktif *</label>
-          <input type="email" id="email" placeholder="nama@domain.com" required>
+          <label for="nama">Nama Lengkap Kandidat *</label>
+          <input type="text" id="nama" placeholder="Masukkan nama lengkap sesuai KTP" required autocomplete="off">
         </div>
 
         <div class="form-group">
-          <label>Nama Lengkap *</label>
-          <input type="text" id="nama" placeholder="Masukkan nama lengkap" required>
+          <label for="email">Alamat Email Aktif *</label>
+          <input type="email" id="email" placeholder="nama@domain.com" required autocomplete="off">
         </div>
 
         <div class="form-group">
-          <label>Gender *</label>
+          <label for="nohp">No. HP / WhatsApp Aktif *</label>
+          <input type="text" id="nohp" placeholder="Contoh: 081234567890" required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="posisi">Posisi yang Dilamar *</label>
+          <input type="text" id="posisi" placeholder="Masukkan posisi yang Anda lamar" required autocomplete="off">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Jenis Kelamin *</label>
           <div class="choices">
             <label><input type="radio" name="gender" value="Laki-laki"> Laki-laki</label>
             <label><input type="radio" name="gender" value="Perempuan"> Perempuan</label>
           </div>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 0;">
-          <label>Pendidikan Terakhir *</label>
-          <div class="choices">
-            <label><input type="radio" name="pendidikan" value="S1"> S1</label>
-            <label><input type="radio" name="pendidikan" value="D3"> D3</label>
-            <label><input type="radio" name="pendidikan" value="Other"> Lainnya</label>
-          </div>
-          <input type="text" id="pendidikanLain" placeholder="Tuliskan pendidikan Anda" hidden style="margin-top: 12px;">
         </div>
       </div>
 
@@ -246,9 +245,8 @@
       <button class="btn" onclick="startTestQuestions()">Lanjut ke Instruksi & Soal ➔</button>
     </div>
 
-    <!-- SCREEN 2: INSTRUKSI & 90 SOAL (TERGABUNG LANGSUNG) -->
+    <!-- SCREEN 2: INSTRUKSI & 90 SOAL -->
     <div id="screen-test" hidden>
-      <!-- Petunjuk Pengerjaan Tersemat di Atas Soal -->
       <div class="card">
         <h2>Pedoman / Petunjuk Mengerjakan</h2>
         <p>Pada halaman ini, Saudara akan membaca 90 nomor pasangan pernyataan mengenai berbagai hal yang mungkin Saudara suka atau tidak suka lakukan dalam bekerja.</p>
@@ -275,11 +273,11 @@
       </form>
     </div>
 
-    <!-- SCREEN 3: FINISH -->
+    <!-- SCREEN 3: FINISH SCREEN -->
     <div id="screen-finish" hidden style="text-align: center; padding: 48px 16px;">
       <h1 style="color: var(--accent); margin-bottom: 12px;">Jawaban Berhasil Terkirim</h1>
       <p style="font-size: 1rem; max-width: 520px; margin: 0 auto 24px auto;">
-        Terima kasih telah menyelesaikan asesmen Perception and Preference Inventory (PAPI). Seluruh hasil pengerjaan Saudara telah tercatat dengan aman.
+        Terima kasih telah menyelesaikan asesmen Perception and Preference Inventory (PAPI). Seluruh hasil pengerjaan Saudara telah tercatat dengan aman di server penguji.
       </p>
       <div style="font-size: 0.85rem; color: var(--muted);">Token Anda kini telah dinonaktifkan. Anda dipersilakan menutup tab ini.</div>
     </div>
@@ -402,7 +400,7 @@
     }
   }
 
-  /* 1. Verifikasi Token Langsung ke Server Spreadsheet */
+  /* 1. Verifikasi Token Langsung ke Server (Strict Fast-Resume) */
   async function verifyToken() {
     const val = $("input-token").value.trim().toUpperCase();
     if (!val) return alert("Silakan masukkan kode token Anda!");
@@ -435,7 +433,6 @@
       activeToken = val;
       $("display-active-token").textContent = activeToken;
       
-      // Berpindah ke Screen 1: Data Diri
       $("screen-token").hidden = true;
       $("screen-profile").hidden = false;
       saveProgress();
@@ -449,42 +446,42 @@
     }
   }
 
-  /* 2. Validasi Data Diri & Buka Lembar Instruksi + Soal */
+  /* 2. Validasi 5 Kolom Data Diri */
   function startTestQuestions() {
     const p = profile();
     const errBox = $("profileErrBox");
     errBox.hidden = true;
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) {
-      errBox.textContent = "Format email tidak valid (contoh: nama@domain.com).";
-      errBox.hidden = false;
-      $("email").focus();
-      return;
-    }
     if (!p.nama) {
-      errBox.textContent = "Mohon isi Nama Lengkap Anda.";
+      errBox.textContent = "Mohon isi Nama Lengkap Anda sesuai KTP.";
       errBox.hidden = false;
       $("nama").focus();
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) {
+      errBox.textContent = "Format email aktif tidak valid (contoh: nama@domain.com).";
+      errBox.hidden = false;
+      $("email").focus();
+      return;
+    }
+    if (!p.nohp) {
+      errBox.textContent = "Mohon isi No. HP / WhatsApp aktif Anda.";
+      errBox.hidden = false;
+      $("nohp").focus();
+      return;
+    }
+    if (!p.posisi) {
+      errBox.textContent = "Mohon isi Posisi yang Dilamar.";
+      errBox.hidden = false;
+      $("posisi").focus();
+      return;
+    }
     if (!p.gender) {
-      errBox.textContent = "Mohon pilih Gender.";
+      errBox.textContent = "Mohon pilih Jenis Kelamin Anda.";
       errBox.hidden = false;
-      return;
-    }
-    if (!p.pendidikan) {
-      errBox.textContent = "Mohon pilih Pendidikan Terakhir.";
-      errBox.hidden = false;
-      return;
-    }
-    if (p.pendidikan === "Other" && !p.pendidikanLain) {
-      errBox.textContent = "Mohon tuliskan pendidikan Anda.";
-      errBox.hidden = false;
-      $("pendidikanLain").focus();
       return;
     }
 
-    // Pindah ke Screen 2: Soal & Instruksi
     $("screen-profile").hidden = true;
     $("screen-test").hidden = false;
     $("progress-container").hidden = false;
@@ -505,12 +502,14 @@
     $("display-active-token").textContent = activeToken;
 
     const p = data.p || {};
-    $("email").value = p.email || "";
     $("nama").value = p.nama || "";
-    if (p.gender) { const r = document.querySelector(`input[name=gender][value='${p.gender}']`); if (r) r.checked = true; }
-    if (p.pendidikan) { const r = document.querySelector(`input[name=pendidikan][value='${p.pendidikan}']`); if (r) r.checked = true; }
-    $("pendidikanLain").value = p.pendidikanLain || "";
-    $("pendidikanLain").hidden = p.pendidikan !== "Other";
+    $("email").value = p.email || "";
+    $("nohp").value = p.nohp || "";
+    $("posisi").value = p.posisi || "";
+    if (p.gender) {
+      const r = document.querySelector(`input[name=gender][value='${p.gender}']`);
+      if (r) r.checked = true;
+    }
 
     (data.a || []).forEach((v, i) => {
       if (v === "a" || v === "b") {
@@ -523,7 +522,6 @@
     if (data.s) { startedAt = data.s; runTimer(); }
     updateProgress();
 
-    // Jika biodata sudah terisi, langsung buka lembar soal
     $("screen-token").hidden = true;
     if (p.email && p.nama) {
       $("screen-test").hidden = false;
@@ -606,14 +604,13 @@
   }
 
   function profile() {
-    const pend = document.querySelector("input[name=pendidikan]:checked");
     const gen = document.querySelector("input[name=gender]:checked");
     return {
-      email: $("email").value.trim(),
       nama: $("nama").value.trim(),
-      gender: gen ? gen.value : "",
-      pendidikan: pend ? pend.value : "",
-      pendidikanLain: $("pendidikanLain").value.trim()
+      email: $("email").value.trim(),
+      nohp: $("nohp").value.trim(),
+      posisi: $("posisi").value.trim(),
+      gender: gen ? gen.value : ""
     };
   }
 
@@ -652,13 +649,15 @@
     isTestActive = false;
     const p = profile();
     const payload = {
+      timestamp: new Date().toLocaleString("id-ID"),
       token: activeToken,
+      name: p.nama,
       email: p.email,
-      nama: p.nama,
+      nohp: p.nohp,
+      posisi: p.posisi,
       gender: p.gender,
-      pendidikan: p.pendidikan === "Other" ? "Other: " + p.pendidikanLain : p.pendidikan,
-      answers: answers.slice(),
-      durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0
+      durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
+      answersJSON: JSON.stringify(answers)
     };
 
     const btn = $("submitBtn");
@@ -715,11 +714,7 @@
     }
 
     $("papi-form").addEventListener("submit", submitForm);
-    document.querySelectorAll("input[name=pendidikan]").forEach((r) => r.addEventListener("change", () => {
-      $("pendidikanLain").hidden = r.value !== "Other" || !r.checked;
-      saveProgress();
-    }));
-    ["email", "nama", "pendidikanLain"].forEach((id) => $(id).addEventListener("input", saveProgress));
+    ["email", "nama", "nohp", "posisi"].forEach((id) => $(id).addEventListener("input", saveProgress));
     document.querySelectorAll("input[name=gender]").forEach((r) => r.addEventListener("change", saveProgress));
   });
 </script>
