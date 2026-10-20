@@ -82,10 +82,10 @@
     .count { font-size: 0.9rem; font-weight: 700; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
     .body { padding: 32px 24px; flex-grow: 1; }
-    h1 { color: var(--primary); margin-bottom: 12px; font-size: 1.6rem; }
+    h1 { color: var(--primary); margin-bottom: 12px; font-size: 1.55rem; }
     p { color: var(--muted); margin-bottom: 20px; line-height: 1.6; font-size: 0.95rem; }
     
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 20px; }
     .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 12px; font-weight: 700; }
     
     .example { 
@@ -97,20 +97,28 @@
       font-size: 0.92rem;
     }
 
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
     .form-group input { width: 100%; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border); outline: none; font-size: 1rem; }
-    .form-group input:focus { border-color: var(--primary); }
-    .form-group input[readonly] { background: #f8fafc; opacity: 0.8; cursor: not-allowed; }
+    .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.12); }
 
-    .choices { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 6px; }
-    .choices label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; }
+    /* Anti-Warp Flex Options */
+    .choices { display: flex; flex-wrap: wrap; gap: 14px 28px; margin-top: 8px; }
+    .choices label { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      cursor: pointer; 
+      font-size: 0.95rem; 
+      white-space: nowrap; /* Mencegah Laki-laki patah menjadi 2 baris */
+    }
+    .choices input[type=radio] { transform: scale(1.2); accent-color: var(--primary); }
 
     .btn { background: var(--primary); color: white; border: none; padding: 12px 26px; font-weight: 600; border-radius: 6px; cursor: pointer; display: inline-block; transition: background 0.2s; font-size: 1rem; }
     .btn:hover { background: var(--primary-dark); }
     .btn:disabled { background: #94a3b8; cursor: not-allowed; }
     
-    /* Pertanyaan PAPI */
+    /* Kotak Pertanyaan PAPI */
     .q-box { 
       background: #ffffff; 
       border: 1px solid var(--border); 
@@ -170,7 +178,7 @@
     </div>
   </div>
 
-  <!-- Progress Bar (Aktif Saat Masuk Ujian) -->
+  <!-- Progress Bar (Aktif Saat Masuk Lembar Soal) -->
   <div id="progress-container" class="progress-bar-wrap" hidden>
     <div class="bar"><i id="bar-fill"></i></div>
     <span class="count" id="count-display">0 / 90</span>
@@ -181,7 +189,7 @@
     <!-- SCREEN 0: TOKEN GATE -->
     <div id="screen-token">
       <h1>Selamat Datang di Asesmen PAPI</h1>
-      <p>Silakan masukkan kode token resmi yang telah diberikan oleh penguji untuk mengakses lembar asesmen Perception and Preference Inventory.</p>
+      <p>Silakan masukkan kode token resmi yang telah diberikan oleh penguji untuk mengakses asesmen Perception and Preference Inventory.</p>
       
       <div class="form-group" style="max-width: 420px; margin-bottom: 24px;">
         <label>Kode Token Asesmen</label>
@@ -190,7 +198,7 @@
 
       <button class="btn" id="btn-verify-token" onclick="verifyToken()">Verifikasi Token ➔</button>
 
-      <!-- Banner Resume Sesi -->
+      <!-- Banner Resume Sesi Otomatis -->
       <div id="token-resume-alert" hidden style="margin-top: 24px; padding: 18px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
         <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 6px;">Sesi Pengerjaan Ditemukan!</h3>
         <p id="resume-msg" style="margin-bottom: 14px; font-size: 0.92rem; color: #1e293b;"></p>
@@ -198,64 +206,65 @@
       </div>
     </div>
 
-    <!-- SCREEN 1: FORM PAPI -->
-    <div id="screen-form" hidden>
-      <h1>Perception and Preference Inventory (PAPI)</h1>
+    <!-- SCREEN 1: DATA DIRI PESERTA (HALAMAN TERSENDIRI) -->
+    <div id="screen-profile" hidden>
+      <h1>Data Diri Peserta</h1>
+      <p>Token Terverifikasi: <strong id="display-active-token" style="color: var(--primary);"></strong>. Lengkapi identitas Saudara sebelum membuka lembar instruksi & soal.</p>
 
+      <div class="card" style="max-width: 580px;">
+        <div class="form-group">
+          <label>Email Aktif *</label>
+          <input type="email" id="email" placeholder="nama@domain.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input type="text" id="nama" placeholder="Masukkan nama lengkap" required>
+        </div>
+
+        <div class="form-group">
+          <label>Gender *</label>
+          <div class="choices">
+            <label><input type="radio" name="gender" value="Laki-laki"> Laki-laki</label>
+            <label><input type="radio" name="gender" value="Perempuan"> Perempuan</label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Pendidikan Terakhir *</label>
+          <div class="choices">
+            <label><input type="radio" name="pendidikan" value="S1"> S1</label>
+            <label><input type="radio" name="pendidikan" value="D3"> D3</label>
+            <label><input type="radio" name="pendidikan" value="Other"> Lainnya</label>
+          </div>
+          <input type="text" id="pendidikanLain" placeholder="Tuliskan pendidikan Anda" hidden style="margin-top: 12px;">
+        </div>
+      </div>
+
+      <div id="profileErrBox" class="msg-err" hidden></div>
+
+      <button class="btn" onclick="startTestQuestions()">Lanjut ke Instruksi & Soal ➔</button>
+    </div>
+
+    <!-- SCREEN 2: INSTRUKSI & 90 SOAL (TERGABUNG LANGSUNG) -->
+    <div id="screen-test" hidden>
+      <!-- Petunjuk Pengerjaan Tersemat di Atas Soal -->
       <div class="card">
-        <h2>Petunjuk Pengerjaan</h2>
-        <p>Token Terverifikasi: <strong id="display-active-token" style="color: var(--primary);"></strong></p>
-        <p>Pada halaman ini, Saudara akan membaca 90 nomor pasangan pernyataan mengenai berbagai hal yang mungkin Saudara suka atau tidak suka lakukan dalam konteks bekerja.</p>
+        <h2>Pedoman / Petunjuk Mengerjakan</h2>
+        <p>Pada halaman ini, Saudara akan membaca 90 nomor pasangan pernyataan mengenai berbagai hal yang mungkin Saudara suka atau tidak suka lakukan dalam bekerja.</p>
         <p>Pada setiap nomor, <strong>pilih satu pernyataan yang paling menggambarkan diri Saudara saat ini</strong>.</p>
         
         <div class="example">
           <strong>Contoh:</strong>
           <div class="opt" style="cursor: default; margin-top: 6px;"><input type="radio" disabled checked><span>Saya suka memberi petunjuk kepada orang bagaimana melakukan sesuatu</span></div>
           <div class="opt" style="cursor: default;"><input type="radio" disabled><span>Saya ingin melakukan sesuatu sebaik mungkin</span></div>
-          <p style="margin: 10px 0 0; color: var(--muted);">Bila Saudara lebih suka memberi petunjuk daripada ingin melakukan sesuatu sebaik mungkin, pilih opsi pertama (atas), dan sebaliknya.</p>
+          <p style="margin: 10px 0 0; color: var(--muted);">Bila Saudara lebih suka memberi petunjuk daripada ingin melakukan sesuatu sebaik mungkin, pilih pernyataan pertama (atas), dan sebaliknya.</p>
         </div>
 
         <p style="margin-bottom: 0;"><strong>Pilihlah salah satu dari setiap pasangan. Jangan ada nomor yang terlewatkan.</strong> Panduan waktu: 15 menit.</p>
       </div>
 
       <form id="papi-form" novalidate autocomplete="off">
-        <div class="card">
-          <h2>Data Diri Peserta</h2>
-          
-          <div class="form-group">
-            <label>Email Aktif *</label>
-            <input type="email" id="email" placeholder="nama@domain.com" required>
-          </div>
-
-          <div class="form-group">
-            <label>Nama Lengkap *</label>
-            <input type="text" id="nama" placeholder="Masukkan nama lengkap" required>
-          </div>
-
-          <div class="form-group">
-            <label>Gender *</label>
-            <div class="choices">
-              <label><input type="radio" name="gender" value="Laki-laki"> Laki-laki</label>
-              <label><input type="radio" name="gender" value="Perempuan"> Perempuan</label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Pendidikan Terakhir *</label>
-            <div class="choices">
-              <label><input type="radio" name="pendidikan" value="S1"> S1</label>
-              <label><input type="radio" name="pendidikan" value="D3"> D3</label>
-              <label><input type="radio" name="pendidikan" value="Other"> Lainnya</label>
-            </div>
-            <input type="text" id="pendidikanLain" placeholder="Tuliskan pendidikan Anda" hidden style="margin-top: 10px;">
-          </div>
-
-          <div class="form-group" style="margin-bottom: 0;">
-            <label>Tanggal Tes *</label>
-            <input type="date" id="tgl" readonly required>
-          </div>
-        </div>
-
         <div id="questions-container"></div>
 
         <div id="errBox" class="msg-err" hidden></div>
@@ -266,11 +275,11 @@
       </form>
     </div>
 
-    <!-- SCREEN 2: FINISH -->
+    <!-- SCREEN 3: FINISH -->
     <div id="screen-finish" hidden style="text-align: center; padding: 48px 16px;">
       <h1 style="color: var(--accent); margin-bottom: 12px;">Jawaban Berhasil Terkirim</h1>
       <p style="font-size: 1rem; max-width: 520px; margin: 0 auto 24px auto;">
-        Terima kasih telah menyelesaikan asesmen Perception and Preference Inventory (PAPI). Seluruh hasil pengerjaan Saudara telah tercatat di server.
+        Terima kasih telah menyelesaikan asesmen Perception and Preference Inventory (PAPI). Seluruh hasil pengerjaan Saudara telah tercatat dengan aman.
       </p>
       <div style="font-size: 0.85rem; color: var(--muted);">Token Anda kini telah dinonaktifkan. Anda dipersilakan menutup tab ini.</div>
     </div>
@@ -280,12 +289,11 @@
 
 <script>
   /* ============ PENGATURAN ============ */
-  // Tempel URL Web app Google Apps Script PAPI kamu (berakhiran /exec)
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyk41KSEFe26n_-PFCfWJxyIvAk-YaKwi7LCmmhYDgzpWmYMdMnX76xmlDzNM0iqHOQ/exec";
   const TEST_MINUTES = 15;
   const STORAGE_KEY = "papi_active_session";
 
-  /* ============ 90 PASANGAN PERNYATAAN PAPI BAKU ============ */
+  /* ============ 90 PASANGAN PERNYATAAN BAKU ============ */
   const QUESTIONS = [
     ["Saya seorang pekerja keras","Saya bukan seorang pemurung"],
     ["Saya suka bekerja lebih baik dari yang lain","Saya suka menekuni pekerjaan yang saya lakukan sampai selesai"],
@@ -387,26 +395,18 @@
   let submitting = false;
   let isTestActive = false;
 
-  function todayISO() {
-    const d = new Date();
-    const p = (n) => String(n).padStart(2, "0");
-    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
-  }
-
-  /* Shortcut reset lokal penguji */
   function quickDevReset() {
-    if (confirm("Reset seluruh sesi lokal PAPI di browser ini?")) {
+    if (confirm("Reset seluruh data lokal sesi PAPI di browser ini?")) {
       localStorage.removeItem(STORAGE_KEY);
       location.reload();
     }
   }
 
-  /* Verifikasi Token Langsung ke Server Spreadsheet (Single Source of Truth) */
+  /* 1. Verifikasi Token Langsung ke Server Spreadsheet */
   async function verifyToken() {
     const val = $("input-token").value.trim().toUpperCase();
     if (!val) return alert("Silakan masukkan kode token Anda!");
 
-    // Cek apakah ada sesi berjalan lokal dengan token ini (Fast Resume)
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -433,32 +433,77 @@
       }
 
       activeToken = val;
-      openTestView();
+      $("display-active-token").textContent = activeToken;
+      
+      // Berpindah ke Screen 1: Data Diri
+      $("screen-token").hidden = true;
+      $("screen-profile").hidden = false;
+      saveProgress();
 
     } catch (err) {
       console.error(err);
-      alert("Gagal menghubungi server database token. Pastikan URL Webhook sudah benar dan internet aktif.");
+      alert("Gagal menghubungi server database token. Pastikan internet aktif.");
     } finally {
       btn.disabled = false;
       btn.textContent = orig;
     }
   }
 
-  function openTestView() {
-    $("display-active-token").textContent = activeToken;
-    $("screen-token").hidden = true;
-    $("screen-form").hidden = false;
+  /* 2. Validasi Data Diri & Buka Lembar Instruksi + Soal */
+  function startTestQuestions() {
+    const p = profile();
+    const errBox = $("profileErrBox");
+    errBox.hidden = true;
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) {
+      errBox.textContent = "Format email tidak valid (contoh: nama@domain.com).";
+      errBox.hidden = false;
+      $("email").focus();
+      return;
+    }
+    if (!p.nama) {
+      errBox.textContent = "Mohon isi Nama Lengkap Anda.";
+      errBox.hidden = false;
+      $("nama").focus();
+      return;
+    }
+    if (!p.gender) {
+      errBox.textContent = "Mohon pilih Gender.";
+      errBox.hidden = false;
+      return;
+    }
+    if (!p.pendidikan) {
+      errBox.textContent = "Mohon pilih Pendidikan Terakhir.";
+      errBox.hidden = false;
+      return;
+    }
+    if (p.pendidikan === "Other" && !p.pendidikanLain) {
+      errBox.textContent = "Mohon tuliskan pendidikan Anda.";
+      errBox.hidden = false;
+      $("pendidikanLain").focus();
+      return;
+    }
+
+    // Pindah ke Screen 2: Soal & Instruksi
+    $("screen-profile").hidden = true;
+    $("screen-test").hidden = false;
     $("progress-container").hidden = false;
     isTestActive = true;
+
+    startTimerOnce();
     saveProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  /* 3. Resume Sesi Otomatis */
   function resumeSession() {
     let data = null;
     try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) {}
     if (!data || !data.token) return;
 
     activeToken = data.token;
+    $("display-active-token").textContent = activeToken;
+
     const p = data.p || {};
     $("email").value = p.email || "";
     $("nama").value = p.nama || "";
@@ -466,7 +511,6 @@
     if (p.pendidikan) { const r = document.querySelector(`input[name=pendidikan][value='${p.pendidikan}']`); if (r) r.checked = true; }
     $("pendidikanLain").value = p.pendidikanLain || "";
     $("pendidikanLain").hidden = p.pendidikan !== "Other";
-    if (p.tgl) $("tgl").value = p.tgl;
 
     (data.a || []).forEach((v, i) => {
       if (v === "a" || v === "b") {
@@ -478,7 +522,16 @@
 
     if (data.s) { startedAt = data.s; runTimer(); }
     updateProgress();
-    openTestView();
+
+    // Jika biodata sudah terisi, langsung buka lembar soal
+    $("screen-token").hidden = true;
+    if (p.email && p.nama) {
+      $("screen-test").hidden = false;
+      $("progress-container").hidden = false;
+      isTestActive = true;
+    } else {
+      $("screen-profile").hidden = false;
+    }
   }
 
   function buildQuestions() {
@@ -519,7 +572,6 @@
   function onAnswer(i, letter) {
     answers[i] = letter;
     $("q" + (i + 1)).classList.remove("missing");
-    startTimerOnce();
     updateProgress();
     saveProgress();
   }
@@ -561,8 +613,7 @@
       nama: $("nama").value.trim(),
       gender: gen ? gen.value : "",
       pendidikan: pend ? pend.value : "",
-      pendidikanLain: $("pendidikanLain").value.trim(),
-      tgl: $("tgl").value
+      pendidikanLain: $("pendidikanLain").value.trim()
     };
   }
 
@@ -578,48 +629,34 @@
     } catch (e) {}
   }
 
-  function validate() {
-    const p = profile();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) {$("email").focus(); return "Format email tidak valid (contoh: nama@domain.com)."; }
-    if (!p.nama) { $("nama").focus(); return "Mohon isi Nama Lengkap Anda."; }
-    if (!p.gender) return "Mohon pilih Gender.";
-    if (!p.pendidikan) return "Mohon pilih Pendidikan Terakhir.";
-    if (p.pendidikan === "Other" && !p.pendidikanLain) { $("pendidikanLain").focus(); return "Mohon tuliskan pendidikan Anda."; }
-    if (!p.tgl) { $("tgl").focus(); return "Tanggal tes wajib terisi."; }
+  /* 4. Validasi 90 Soal & Kirim ke Server */
+  async function submitForm(ev) {
+    ev.preventDefault();
+    if (submitting) return;
 
     const missing = [];
     answers.forEach((v, i) => { if (!v) missing.push(i + 1); });
     document.querySelectorAll(".q-box").forEach((el, i) => el.classList.toggle("missing", !answers[i]));
     
+    const box = $("errBox");
     if (missing.length) {
       $("q" + missing[0]).scrollIntoView({ behavior: "smooth", block: "center" });
       const list = missing.length > 10 ? missing.slice(0, 10).join(", ") + ", ..." : missing.join(", ");
-      return missing.length + " pertanyaan belum dijawab (nomor " + list + "). Semua nomor wajib diisi.";
+      box.textContent = missing.length + " pertanyaan belum dijawab (nomor " + list + "). Semua 90 nomor wajib diisi.";
+      box.hidden = false;
+      return;
     }
-    return "";
-  }
-
-  async function submitForm(ev) {
-    ev.preventDefault();
-    if (submitting) return;
-    
-    const err = validate();
-    const box = $("errBox");
-    box.textContent = err;
-    box.hidden = !err;
-    if (err) return;
+    box.hidden = true;
 
     submitting = true;
     isTestActive = false;
     const p = profile();
     const payload = {
-      timestamp: new Date().toLocaleString("id-ID"),
       token: activeToken,
       email: p.email,
       nama: p.nama,
       gender: p.gender,
       pendidikan: p.pendidikan === "Other" ? "Other: " + p.pendidikanLain : p.pendidikan,
-      tglTes: p.tgl,
       answers: answers.slice(),
       durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0
     };
@@ -639,8 +676,7 @@
       localStorage.removeItem(STORAGE_KEY);
       if (timerHandle) clearInterval(timerHandle);
 
-      $("screen-token").hidden = true;
-      $("screen-form").hidden = true;
+      $("screen-test").hidden = true;
       $("progress-container").hidden = true;
       $("screen-finish").hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -663,7 +699,6 @@
   });
 
   document.addEventListener("DOMContentLoaded", () => {
-    $("tgl").value = todayISO();
     buildQuestions();
 
     const saved = localStorage.getItem(STORAGE_KEY);
