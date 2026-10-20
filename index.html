@@ -117,7 +117,6 @@
     .btn:hover { background: var(--primary-dark); }
     .btn:disabled { background: #94a3b8; cursor: not-allowed; }
     
-    /* Kotak Soal PAPI */
     .q-box { 
       background: #ffffff; 
       border: 1px solid var(--border); 
@@ -169,7 +168,6 @@
 
 <div class="container">
   
-  <!-- Header Bar -->
   <div class="header">
     <h2 id="header-title" ondblclick="quickDevReset()" style="cursor: pointer;" title="Double click untuk reset dev data">PAPI Kostick Digital</h2>
     <div class="header-right">
@@ -177,7 +175,6 @@
     </div>
   </div>
 
-  <!-- Progress Bar (Aktif Saat Masuk Lembar Soal) -->
   <div id="progress-container" class="progress-bar-wrap" hidden>
     <div class="bar"><i id="bar-fill"></i></div>
     <span class="count" id="count-display">0 / 90</span>
@@ -197,7 +194,6 @@
 
       <button class="btn" id="btn-verify-token" onclick="verifyToken()">Verifikasi Token ➔</button>
 
-      <!-- Banner Resume Sesi Otomatis (Tanpa Tombol Reset) -->
       <div id="token-resume-alert" hidden style="margin-top: 24px; padding: 18px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
         <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 6px;">Sesi Pengerjaan Ditemukan!</h3>
         <p id="resume-msg" style="margin-bottom: 14px; font-size: 0.92rem; color: #1e293b;"></p>
@@ -205,37 +201,37 @@
       </div>
     </div>
 
-    <!-- SCREEN 1: DATA DIRI PESERTA (STANDAR 5 KOLOM BAKU) -->
+    <!-- SCREEN 1: DATA DIRI PESERTA (5 KOLOM LENGKAP & BAKU) -->
     <div id="screen-profile" hidden>
       <h1>Data Diri Peserta</h1>
       <p>Token Terverifikasi: <strong id="display-active-token" style="color: var(--primary);"></strong>. Lengkapi identitas Anda sebelum membuka lembar instruksi & soal.</p>
 
       <div class="card" style="max-width: 620px;">
         <div class="form-group">
-          <label for="nama">Nama Lengkap Kandidat *</label>
-          <input type="text" id="nama" placeholder="Masukkan nama lengkap sesuai KTP" required autocomplete="off">
+          <label for="nameInput">Nama Lengkap Kandidat *</label>
+          <input type="text" id="nameInput" placeholder="Masukkan nama lengkap sesuai KTP" required autocomplete="off">
         </div>
 
         <div class="form-group">
-          <label for="email">Alamat Email Aktif *</label>
-          <input type="email" id="email" placeholder="nama@domain.com" required autocomplete="off">
+          <label for="emailInput">Alamat Email Aktif *</label>
+          <input type="email" id="emailInput" placeholder="nama@domain.com" required autocomplete="off">
         </div>
 
         <div class="form-group">
-          <label for="nohp">No. HP / WhatsApp Aktif *</label>
-          <input type="text" id="nohp" placeholder="Contoh: 081234567890" required autocomplete="off">
+          <label for="nohpInput">No. HP / WhatsApp Aktif *</label>
+          <input type="text" id="nohpInput" placeholder="Contoh: 081234567890" required autocomplete="off">
         </div>
 
         <div class="form-group">
-          <label for="posisi">Posisi yang Dilamar *</label>
-          <input type="text" id="posisi" placeholder="Masukkan posisi yang Anda lamar" required autocomplete="off">
+          <label for="posisiInput">Posisi yang Dilamar *</label>
+          <input type="text" id="posisiInput" placeholder="Masukkan posisi yang Anda lamar" required autocomplete="off">
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
           <label>Jenis Kelamin *</label>
           <div class="choices">
-            <label><input type="radio" name="gender" value="Laki-laki"> Laki-laki</label>
-            <label><input type="radio" name="gender" value="Perempuan"> Perempuan</label>
+            <label><input type="radio" name="genderInput" value="Laki-laki"> Laki-laki</label>
+            <label><input type="radio" name="genderInput" value="Perempuan"> Perempuan</label>
           </div>
         </div>
       </div>
@@ -286,12 +282,12 @@
 </div>
 
 <script>
-  /* ============ PENGATURAN ============ */
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyk41KSEFe26n_-PFCfWJxyIvAk-YaKwi7LCmmhYDgzpWmYMdMnX76xmlDzNM0iqHOQ/exec";
+  // Tempel URL Web App Google Apps Script PAPI Anda (berakhiran /exec)
+  const APPS_SCRIPT_URL = "URL_WEBHOOK_GOOGLESHEET_PAPI_KAMU";
   const TEST_MINUTES = 15;
   const STORAGE_KEY = "papi_active_session";
 
-  /* ============ 90 PASANGAN PERNYATAAN BAKU ============ */
+  /* 90 PASANGAN PERNYATAAN BAKU */
   const QUESTIONS = [
     ["Saya seorang pekerja keras","Saya bukan seorang pemurung"],
     ["Saya suka bekerja lebih baik dari yang lain","Saya suka menekuni pekerjaan yang saya lakukan sampai selesai"],
@@ -452,28 +448,28 @@
     const errBox = $("profileErrBox");
     errBox.hidden = true;
 
-    if (!p.nama) {
+    if (!p.name) {
       errBox.textContent = "Mohon isi Nama Lengkap Anda sesuai KTP.";
       errBox.hidden = false;
-      $("nama").focus();
+      $("nameInput").focus();
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) {
       errBox.textContent = "Format email aktif tidak valid (contoh: nama@domain.com).";
       errBox.hidden = false;
-      $("email").focus();
+      $("emailInput").focus();
       return;
     }
     if (!p.nohp) {
       errBox.textContent = "Mohon isi No. HP / WhatsApp aktif Anda.";
       errBox.hidden = false;
-      $("nohp").focus();
+      $("nohpInput").focus();
       return;
     }
     if (!p.posisi) {
       errBox.textContent = "Mohon isi Posisi yang Dilamar.";
       errBox.hidden = false;
-      $("posisi").focus();
+      $("posisiInput").focus();
       return;
     }
     if (!p.gender) {
@@ -502,12 +498,12 @@
     $("display-active-token").textContent = activeToken;
 
     const p = data.p || {};
-    $("nama").value = p.nama || "";
-    $("email").value = p.email || "";
-    $("nohp").value = p.nohp || "";
-    $("posisi").value = p.posisi || "";
+    $("nameInput").value = p.name || "";
+    $("emailInput").value = p.email || "";
+    $("nohpInput").value = p.nohp || "";
+    $("posisiInput").value = p.posisi || "";
     if (p.gender) {
-      const r = document.querySelector(`input[name=gender][value='${p.gender}']`);
+      const r = document.querySelector(`input[name=genderInput][value='${p.gender}']`);
       if (r) r.checked = true;
     }
 
@@ -523,7 +519,7 @@
     updateProgress();
 
     $("screen-token").hidden = true;
-    if (p.email && p.nama) {
+    if (p.email && p.name) {
       $("screen-test").hidden = false;
       $("progress-container").hidden = false;
       isTestActive = true;
@@ -604,12 +600,12 @@
   }
 
   function profile() {
-    const gen = document.querySelector("input[name=gender]:checked");
+    const gen = document.querySelector("input[name=genderInput]:checked");
     return {
-      nama: $("nama").value.trim(),
-      email: $("email").value.trim(),
-      nohp: $("nohp").value.trim(),
-      posisi: $("posisi").value.trim(),
+      name: $("nameInput").value.trim(),
+      email: $("emailInput").value.trim(),
+      nohp: $("nohpInput").value.trim(),
+      posisi: $("posisiInput").value.trim(),
       gender: gen ? gen.value : ""
     };
   }
@@ -626,7 +622,7 @@
     } catch (e) {}
   }
 
-  /* 4. Validasi 90 Soal & Kirim ke Server */
+  /* 4. Validasi 90 Soal & Pengiriman Payload */
   async function submitForm(ev) {
     ev.preventDefault();
     if (submitting) return;
@@ -648,15 +644,19 @@
     submitting = true;
     isTestActive = false;
     const p = profile();
+    
+    // Kirim payload lengkap (kompatibel array dan string JSON)
     const payload = {
       timestamp: new Date().toLocaleString("id-ID"),
       token: activeToken,
-      name: p.nama,
+      name: p.name,
+      nama: p.name,
       email: p.email,
       nohp: p.nohp,
       posisi: p.posisi,
       gender: p.gender,
       durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
+      answers: answers.slice(),
       answersJSON: JSON.stringify(answers)
     };
 
@@ -707,15 +707,15 @@
         if (parsed.token) {
           const doneCount = (parsed.a || []).filter(Boolean).length;
           $("input-token").value = parsed.token;
-          $("resume-msg").innerHTML = `Token: <strong>${parsed.token}</strong> (${parsed.p?.nama || "Peserta"})<br>Progres: <strong>${doneCount} / 90 soal terjawab</strong>.`;
+          $("resume-msg").innerHTML = `Token: <strong>${parsed.token}</strong> (${parsed.p?.name || "Peserta"})<br>Progres: <strong>${doneCount} / 90 soal terjawab</strong>.`;
           $("token-resume-alert").hidden = false;
         }
       } catch (e) {}
     }
 
     $("papi-form").addEventListener("submit", submitForm);
-    ["email", "nama", "nohp", "posisi"].forEach((id) => $(id).addEventListener("input", saveProgress));
-    document.querySelectorAll("input[name=gender]").forEach((r) => r.addEventListener("change", saveProgress));
+    ["emailInput", "nameInput", "nohpInput", "posisiInput"].forEach((id) => $(id).addEventListener("input", saveProgress));
+    document.querySelectorAll("input[name=genderInput]").forEach((r) => r.addEventListener("change", saveProgress));
   });
 </script>
 </body>
