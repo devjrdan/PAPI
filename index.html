@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perception and Preference Inventory (PAPI)</title>
+  <title>Perception and Preference Inventory (PAPI) - ALBÉA INDONESIA</title>
   <style>
     :root { 
       --primary: #1f4e79; 
@@ -112,10 +112,11 @@
     .form-group { margin-bottom: 18px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
     .form-group input { width: 100%; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border); outline: none; font-size: 1rem; }
-    .form-group input:focus { border-color: var(--primary); }
+    .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.12); }
 
     .choices { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 6px; }
     .choices label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; white-space: nowrap; }
+    .choices input[type=radio] { transform: scale(1.2); accent-color: var(--primary); }
 
     .btn { background: var(--primary); color: white; border: none; padding: 12px 26px; font-weight: 600; border-radius: 6px; cursor: pointer; display: inline-block; transition: background 0.2s; font-size: 1rem; }
     .btn:hover { background: var(--primary-dark); }
@@ -174,11 +175,11 @@
       font-size: 0.92rem; 
     }
 
-    /* Kotak Peringatan Instruksi (Standar IST) */
+    /* Kotak Peringatan Instruksi */
     .inst-warning-box {
       background: #fef2f2;
       border: 1px solid #fecaca;
-      border-left: 4px solid #dc2626;
+      border-left: 4px solid var(--err);
       border-radius: 8px;
       padding: 14px 18px;
       margin-bottom: 24px;
@@ -228,13 +229,13 @@
 </head>
 <body>
 
-<!-- MODAL PERINGATAN PELANGGARAN (0/3 -> 3/3) -->
+<!-- MODAL PERINGATAN PELANGGARAN -->
 <div id="strike-modal">
   <div class="modal-box">
     <div style="font-size: 2.8rem; margin-bottom: 8px; line-height: 1;">⚠️</div>
-    <h3 id="strike-title" style="color: #dc2626; font-size: 1.25rem; margin-bottom: 10px; font-weight: 800;">PERINGATAN KEAMANAN (1/3)</h3>
+    <h3 id="strike-title" style="color: var(--err); font-size: 1.25rem; margin-bottom: 10px; font-weight: 800;">PERINGATAN KEAMANAN (1/3)</h3>
     <p id="strike-desc" style="color: #475569; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;"></p>
-    <button class="btn" style="background: #dc2626; width: 100%; font-size: 1rem; padding: 12px;" id="btn-strike-ack">Saya Mengerti & Lanjutkan</button>
+    <button class="btn" style="background: var(--err); width: 100%; font-size: 1rem; padding: 12px;" id="btn-strike-ack">Saya Mengerti & Lanjutkan</button>
   </div>
 </div>
 
@@ -268,7 +269,7 @@
 
       <button class="btn" id="btn-verify-token" onclick="verifyToken()">Verifikasi Token ➔</button>
 
-      <!-- Banner Resume Sesi -->
+      <!-- Banner Resume Sesi Otomatis -->
       <div id="token-resume-alert" hidden style="margin-top: 24px; padding: 18px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
         <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 6px;">Sesi Pengerjaan Ditemukan!</h3>
         <p id="resume-msg" style="margin-bottom: 14px; font-size: 0.92rem; color: #1e293b;"></p>
@@ -276,32 +277,30 @@
       </div>
     </div>
 
-    <!-- SCREEN 1: FORM DATA DIRI PESERTA -->
+    <!-- SCREEN 1: FORM DATA DIRI PESERTA (5 KOLOM BAKU) -->
     <div id="screen-biodata" hidden>
       <h1>Data Diri Peserta</h1>
       <p>Mohon lengkapi seluruh data identitas berikut secara valid sebelum melanjutkan ke petunjuk pengerjaan.</p>
 
-      <div class="card">
-        <h2>Informasi Identitas</h2>
-        
+      <div class="card" style="max-width: 620px;">
         <div class="form-group">
-          <label>Email Aktif *</label>
+          <label for="nama">Nama Lengkap Kandidat *</label>
+          <input type="text" id="nama" placeholder="Masukkan nama lengkap sesuai KTP" required autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Alamat Email Aktif *</label>
           <input type="email" id="email" placeholder="nama@domain.com" required autocomplete="email">
         </div>
 
         <div class="form-group">
-          <label>Nama Lengkap *</label>
-          <input type="text" id="nama" placeholder="Masukkan nama lengkap" required autocomplete="name">
-        </div>
-
-        <div class="form-group">
-          <label>Nomor HP / WhatsApp *</label>
+          <label for="hp">Nomor HP / WhatsApp *</label>
           <input type="text" id="hp" placeholder="Contoh: 081234567890" required autocomplete="tel">
         </div>
 
         <div class="form-group">
-          <label>Posisi yang Dilamar *</label>
-          <input type="text" id="posisi" placeholder="Contoh: Staff HR / Plant Manager" required>
+          <label for="posisi">Posisi yang Dilamar *</label>
+          <input type="text" id="posisi" placeholder="Masukkan posisi yang Anda lamar" required>
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
@@ -341,20 +340,22 @@
         <p style="margin-bottom: 0;">Ini bukan tes dengan jawaban benar atau salah. <strong>Buatlah pilihan pada setiap pasangan dan jangan sampai ada nomor yang terlewatkan.</strong></p>
       </div>
 
-      <!-- KOTAK PERINGATAN KEAMANAN (FITUR IST) -->
       <div class="inst-warning-box">
         <strong class="title">⚠️ Peraturan & Keamanan Selama Pengerjaan:</strong>
         <ul>
           <li><strong>Alokasi Waktu Pengerjaan:</strong> 15 Menit (timer mulai saat tombol ditekan).</li>
           <li><strong>Jangan sampai layar perangkat mati / terkunci</strong> selama pengerjaan berlangsung.</li>
           <li><strong>Jangan berpindah tab, meminimalkan peramban, atau membuka jendela lain.</strong></li>
-          <li><strong>Dilarang melakukan tangkapan layar (screenshot)</strong> — setiap pelanggaran tercatat otomatis (konsekuensi <strong>Peringatan 0/3 hingga Diskualifikasi</strong>).</li>
-          <li><strong>Jangan gunakan aplikasi overlay eksternal</strong> (seperti <em>AssistiveTouch</em>, <em>floating chat</em>, atau mode <em>Split Screen</em>).</li>
-          <li>Sangat disarankan menggunakan perangkat <strong>Windows (PC/Laptop)</strong> atau <strong>Android</strong> demi kelancaran sistem.</li>
+          <li><strong>Dilarang melakukan tangkapan layar (screenshot)</strong> — setiap pelanggaran tercatat otomatis (maksimal 3 peringatan sebelum diskualifikasi).</li>
+          <li><strong>Jangan gunakan aplikasi overlay eksternal</strong> (seperti floating chat atau split screen).</li>
+          <li>Sangat disarankan menggunakan perangkat <strong>PC/Laptop</strong> demi kelancaran sistem.</li>
         </ul>
       </div>
 
-      <button class="btn" style="background: var(--accent); font-size: 1.05rem;" onclick="startQuestions()">Mulai Mengerjakan Tes ➔</button>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn-outline" onclick="backToBiodata()">← Ubah Data Diri</button>
+        <button class="btn" style="background: var(--accent); font-size: 1.05rem;" onclick="startQuestions()">Mulai Mengerjakan Tes ➔</button>
+      </div>
     </div>
 
     <!-- SCREEN 3: 90 PERTANYAAN PAPI -->
@@ -492,7 +493,7 @@
   let submitting = false;
   let isTestActive = false;
 
-  /* ============ SISTEM KEAMANAN & PELANGGARAN (IST ENGINE) ============ */
+  /* ============ SISTEM KEAMANAN (ANTI-CHEAT) ============ */
   let cheatStrikes = 0;
   const MAX_STRIKES = 3;
   let isStrikeCooldown = false;
@@ -515,7 +516,6 @@
     }
   }
 
-  /* PENCEGAH FALSE STRIKE SAAT REFRESH */
   window.addEventListener("keydown", function(e) {
     if (e.key === "F5" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r")) {
       isPageUnloading = true;
@@ -525,7 +525,7 @@
   window.addEventListener("beforeunload", function () { isPageUnloading = true; });
   window.addEventListener("pagehide", function () { isPageUnloading = true; });
 
-  /* ============ VERIFIKASI TOKEN & RESUME ============ */
+  /* ============ VERIFIKASI TOKEN & NAVIGASI ============ */
   async function verifyToken() {
     const val = $("input-token").value.trim().toUpperCase();
     if (!val) return alert("Silakan masukkan kode token Anda!");
@@ -564,7 +564,7 @@
 
     } catch (err) {
       console.error(err);
-      alert("Gagal menghubungi server database token. Pastikan internet aktif dan URL Apps Script benar.");
+      alert("Gagal menghubungi server database token. Pastikan internet aktif.");
     } finally {
       btn.disabled = false;
       btn.textContent = orig;
@@ -581,16 +581,16 @@
     const posisi = $("posisi").value.trim();
     const gen = document.querySelector("input[name=gender]:checked");
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errBox.textContent = "Format email tidak valid (contoh: nama@domain.com).";
-      errBox.hidden = false;
-      $("email").focus();
-      return;
-    }
     if (!nama) {
-      errBox.textContent = "Mohon isi Nama Lengkap Anda.";
+      errBox.textContent = "Mohon isi Nama Lengkap Anda sesuai KTP.";
       errBox.hidden = false;
       $("nama").focus();
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errBox.textContent = "Format email aktif tidak valid (contoh: nama@domain.com).";
+      errBox.hidden = false;
+      $("email").focus();
       return;
     }
     if (!hp) {
@@ -616,6 +616,12 @@
     $("screen-instruction").hidden = false;
     saveProgress();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function backToBiodata() {
+    $("screen-instruction").hidden = true;
+    $("screen-biodata").hidden = false;
+    saveProgress();
   }
 
   function startQuestions() {
@@ -659,28 +665,15 @@
         const r = document.querySelector(`input[name=q${i + 1}][value=${v}]`);
         if (r) r.checked = true;
       }
-  });
+    });
 
-  if (data.startedAt) { 
-    startedAt = data.startedAt; 
-    runTimer(); 
-  }
-  updateProgress();
+    if (data.startedAt) { 
+      startedAt = data.startedAt; 
+      runTimer(); 
+    }
+    updateProgress();
 
-  $("screen-token").hidden = true;
-
-  // CEK APAKAH TES SUDAH RESMI DIMULAI:
-  if (data.isTestActive) {
-    $("screen-test").hidden = false;
-    $("progress-container").hidden = false;
-    isTestActive = true;
-  } else {
-    // Jika baru isi data diri / belum klik mulai, tetap di data diri
-    $("screen-profile").hidden = false;
-  }
-}
-
-    // Pulihkan Skor Pelanggaran dari localStorage
+    // Pulihkan Peringatan Pelanggaran
     const savedStrikes = parseInt(localStorage.getItem("papi_strikes_" + activeToken) || data.cheatStrikes || "0");
     cheatStrikes = Math.min(savedStrikes, MAX_STRIKES);
 
@@ -692,12 +685,12 @@
     triggerGracePeriod();
     $("screen-token").hidden = true;
 
-    if (data.startedAt) {
-      startedAt = data.startedAt;
-      runTimer();
-      updateProgress();
-      startQuestions();
-    } else if (p.nama && p.email) {
+    // CEK STATUS LAYAR: JIKA TES BELUM MULAI, JANGAN LONCAT KE SOAL
+    if (data.isTestActive) {
+      $("screen-questions").hidden = false;
+      $("progress-container").hidden = false;
+      isTestActive = true;
+    } else if (p.nama && p.email && p.hp && p.posisi && p.gender) {
       $("screen-instruction").hidden = false;
     } else {
       $("screen-biodata").hidden = false;
@@ -780,22 +773,22 @@
     };
   }
 
-function saveProgress() {
-  if (!activeToken) return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      token: activeToken,
-      p: profile(),
-      a: answers,
-      startedAt: startedAt,
-      cheatStrikes: cheatStrikes,
-      isTestActive: isTestActive // <-- Tambahkan baris ini
-    }));
-    localStorage.setItem("papi_strikes_" + activeToken, cheatStrikes.toString());
-  } catch (e) {}
-}
+  function saveProgress() {
+    if (!activeToken) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        token: activeToken,
+        p: profile(),
+        a: answers,
+        startedAt: startedAt,
+        cheatStrikes: cheatStrikes,
+        isTestActive: isTestActive
+      }));
+      localStorage.setItem("papi_strikes_" + activeToken, cheatStrikes.toString());
+    } catch (e) {}
+  }
 
-  /* ============ SISTEM DETEKSI PELANGGARAN & MODAL (STRIKE SYSTEM) ============ */
+  /* ============ SISTEM PELANGGARAN KEAMANAN ============ */
   function registerViolation(reason) {
     if (isPageUnloading || isGracePeriod || !isTestActive) return;
 
@@ -860,7 +853,7 @@ function saveProgress() {
     }
   }
 
-  /* DETEKSI EVENT KEAMANAN */
+  /* DETEKSI EVENT */
   window.addEventListener("keyup", function(e) {
     if (e.key === "PrintScreen") {
       registerViolation("Menekan Tombol Tangkapan Layar (PrintScreen)");
@@ -937,15 +930,19 @@ function saveProgress() {
     submitting = true;
     isTestActive = false;
     const p = profile();
+    
     const payload = {
       timestamp: new Date().toLocaleString("id-ID"),
       token: activeToken,
-      email: p.email,
+      name: p.nama + (forceDisqualify ? " [DISKUALIFIKASI]" : ""),
       nama: p.nama + (forceDisqualify ? " [DISKUALIFIKASI]" : ""),
+      email: p.email,
       hp: p.hp,
+      nohp: p.hp,
       posisi: p.posisi,
       gender: p.gender,
       answers: answers.slice(),
+      answersJSON: JSON.stringify(answers),
       durasiDetik: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
       cheatStrikes: cheatStrikes,
       cheatReason: cheatLogReason || "Bersih"
