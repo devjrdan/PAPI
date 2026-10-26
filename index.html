@@ -659,7 +659,26 @@
         const r = document.querySelector(`input[name=q${i + 1}][value=${v}]`);
         if (r) r.checked = true;
       }
-    });
+  });
+
+  if (data.startedAt) { 
+    startedAt = data.startedAt; 
+    runTimer(); 
+  }
+  updateProgress();
+
+  $("screen-token").hidden = true;
+
+  // CEK APAKAH TES SUDAH RESMI DIMULAI:
+  if (data.isTestActive) {
+    $("screen-test").hidden = false;
+    $("progress-container").hidden = false;
+    isTestActive = true;
+  } else {
+    // Jika baru isi data diri / belum klik mulai, tetap di data diri
+    $("screen-profile").hidden = false;
+  }
+}
 
     // Pulihkan Skor Pelanggaran dari localStorage
     const savedStrikes = parseInt(localStorage.getItem("papi_strikes_" + activeToken) || data.cheatStrikes || "0");
@@ -761,19 +780,20 @@
     };
   }
 
-  function saveProgress() {
-    if (!activeToken) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        token: activeToken,
-        p: profile(),
-        a: answers,
-        startedAt: startedAt,
-        cheatStrikes: cheatStrikes
-      }));
-      localStorage.setItem("papi_strikes_" + activeToken, cheatStrikes.toString());
-    } catch (e) {}
-  }
+function saveProgress() {
+  if (!activeToken) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      token: activeToken,
+      p: profile(),
+      a: answers,
+      startedAt: startedAt,
+      cheatStrikes: cheatStrikes,
+      isTestActive: isTestActive // <-- Tambahkan baris ini
+    }));
+    localStorage.setItem("papi_strikes_" + activeToken, cheatStrikes.toString());
+  } catch (e) {}
+}
 
   /* ============ SISTEM DETEKSI PELANGGARAN & MODAL (STRIKE SYSTEM) ============ */
   function registerViolation(reason) {
